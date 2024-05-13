@@ -98,7 +98,7 @@ class HiveAgentClient:
             return await get_entry_by_id(self.http_client, self.base_url, namespace, entry_id)
         except Exception as e:
             logger.error(f"Failed to get entry {entry_id} from {namespace}: {e}")
-            raise Exception(f"Failed to get entry {entry_id} from {namespace}: {e}")
+            raise Exception(f"Failed to get entry by ID: {e}")
 
     async def update_entry(self, namespace: str, entry_id: str, data: dict) -> Dict:
         """
@@ -113,7 +113,7 @@ class HiveAgentClient:
             return await update_entry(self.http_client, self.base_url, namespace, entry_id, data)
         except Exception as e:
             logger.error(f"Failed to update entry {entry_id} from {namespace} with {data}: {e}")
-            raise Exception(f"Failed to update entry {entry_id} from {namespace} with {data}: {e}")
+            raise Exception(f"Failed to update entry: {e}")
 
     async def delete_entry(self, namespace: str, entry_id: str) -> Dict:
         """
@@ -127,7 +127,7 @@ class HiveAgentClient:
             return await delete_entry(self.http_client, self.base_url, namespace, entry_id)
         except Exception as e:
             logger.error(f"Failed to delete entry {entry_id} from {namespace}: {e}")
-            raise Exception(f"Failed to delete entry {entry_id} from {namespace}: {e}")
+            raise Exception(f"Failed to delete entry: {e}")
 
     async def close(self):
         """
