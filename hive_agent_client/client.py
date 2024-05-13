@@ -42,7 +42,7 @@ class HiveAgentClient:
             return await send_chat_message(self.http_client, self.base_url, content)
         except Exception as e:
             logger.error(f"Failed to send chat message - {content}: {e}")
-            raise Exception(f"Failed to send chat message - {content}: {e}")
+            raise Exception(f"Failed to send chat message: {e}")
 
     async def create_entry(self, namespace: str, data: dict) -> Dict:
         """
@@ -56,7 +56,7 @@ class HiveAgentClient:
             return await create_entry(self.http_client, self.base_url, namespace, data)
         except Exception as e:
             logger.error(f"Failed to create entry {data} in {namespace}: {e}")
-            raise Exception(f"Failed to create entry {data} in {namespace}: {e}")
+            raise Exception(f"Failed to create entry: {e}")
 
     async def stream_entry_data(self, namespace: str, data_stream: AsyncGenerator) -> AsyncGenerator:
         """
@@ -71,7 +71,7 @@ class HiveAgentClient:
                 yield message
         except Exception as e:
             logger.error(f"Failed to stream entry data from {namespace}: {e}")
-            raise Exception(f"Failed to stream entry data from {namespace}: {e}")
+            raise Exception(f"Failed to stream entry data: {e}")
 
     async def get_entries(self, namespace: str) -> Dict:
         """
@@ -84,7 +84,7 @@ class HiveAgentClient:
             return await get_entries(self.http_client, self.base_url, namespace)
         except Exception as e:
             logger.error(f"Failed to get entries in {namespace}: {e}")
-            raise Exception(f"Failed to get entries in {namespace}: {e}")
+            raise Exception(f"Failed to get entries: {e}")
 
     async def get_entry_by_id(self, namespace: str, entry_id: str) -> Dict:
         """
