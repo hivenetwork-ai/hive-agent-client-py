@@ -23,6 +23,7 @@ async def create_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
         logger.debug(f"Creating entry in {namespace} at {url}")
         response = await http_client.post(url, json=data)
         response.raise_for_status()
+        logger.debug(f"Response for creating entry in {namespace} at {url}: {response.json()}")
         return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"Failed to create entry in {namespace}: {e}")
@@ -75,6 +76,7 @@ async def get_entries(http_client: httpx.AsyncClient, base_url: str, namespace: 
         logger.debug(f"Getting all entries in {namespace} at {url}")
         response = await http_client.get(url)
         response.raise_for_status()
+        logger.debug(f"Response for getting all entries in {namespace} at {url}: {response.json()}")
         return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"Failed to get entries from {namespace}: {e}")
@@ -99,6 +101,7 @@ async def get_entry_by_id(http_client: httpx.AsyncClient, base_url: str, namespa
         logger.debug(f"Getting entry {entry_id} from {namespace} at {url}")
         response = await http_client.get(url)
         response.raise_for_status()
+        logger.debug(f"Response for getting entry {entry_id} from {namespace} at {url}: {response.json()}")
         return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"Failed to get entry {entry_id} from {namespace}: {e}")
@@ -124,6 +127,7 @@ async def update_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
         logger.debug(f"Updating entry {entry_id} from {namespace} with {data} at {url}")
         response = await http_client.put(url, json=data)
         response.raise_for_status()
+        logger.debug(f"Response for updating entry {entry_id} from {namespace} at {url}: {response.json()}")
         return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"Failed to update entry {entry_id} in {namespace}: {e}")
@@ -148,6 +152,7 @@ async def delete_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
         logger.debug(f"Deleting {entry_id} from {namespace} at {url}")
         response = await http_client.delete(url)
         response.raise_for_status()
+        logger.debug(f"Response for deleting entry {entry_id} from {namespace} at {url}: {response.json()}")
         return response.json()
     except httpx.HTTPStatusError as e:
         logger.error(f"Failed to delete entry {entry_id} from {namespace}: {e}")
