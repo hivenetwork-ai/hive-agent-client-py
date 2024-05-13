@@ -181,3 +181,109 @@ async def test_delete_entry_failure():
 async def test_close_http_client():
     client = HiveAgentClient(base_url)
     await client.close()  # test passes if this completes without error
+
+# Negative Tests
+
+@pytest.mark.asyncio
+async def test_network_failure_handling():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(504))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        with pytest.raises(Exception) as excinfo:
+            await client.check_response(response.status_code)
+        assert "Unexpected status code" in str(excinfo.value)
+
+@pytest.mark.asyncio
+async def test_out_of_scope():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(404))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        with pytest.raises(Exception) as excinfo:
+            await client.check_response(response.status_code)
+        assert "Unexpected status code" in str(excinfo.value)
+
+@pytest.mark.asyncio
+async def test_heavy_load():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(429))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        with pytest.raises(Exception) as excinfo:
+            await client.check_response(response.status_code)
+        assert "Unexpected status code" in str(excinfo.value)
+
+@pytest.mark.asyncio
+async def test_internal_server():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(500))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        with pytest.raises(Exception) as excinfo:
+            await client.check_response(response.status_code)
+        assert "Unexpected status code" in str(excinfo.value)
+
+@pytest.mark.asyncio
+async def test_large_data_entry():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(413))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        with pytest.raises(Exception) as excinfo:
+            await client.check_response(response.status_code)
+        assert "Unexpected status code" in str(excinfo.value)
+
+@pytest.mark.asyncio
+async def test_unprocessable_data_entry():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(422))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        with pytest.raises(Exception) as excinfo:
+            await client.check_response(response.status_code)
+        assert "Unexpected status code" in str(excinfo.value)
+
+@pytest.mark.asyncio
+async def test_response_success():
+    namespace = "test"
+    entry_id = "1"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(200))
+
+        client = HiveAgentClient(base_url)
+        response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
+
+        await client.check_response(response.status_code)
+        assert response.status_code == 200

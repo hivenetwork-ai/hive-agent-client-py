@@ -135,3 +135,10 @@ class HiveAgentClient:
         """
         logger.debug("Closing HTTP client session...")
         await self.http_client.aclose()
+        
+    async def check_response(self, response: int) -> int:        
+        if response != 200:
+            raise Exception(f"Unexpected status code: {response}")
+        else:
+            return response
+      
