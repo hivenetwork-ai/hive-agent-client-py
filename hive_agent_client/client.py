@@ -118,6 +118,82 @@ class HiveAgentClient:
         except Exception as e:
             raise Exception(f"Failed to delete entry: {e}")
 
+    async def network_failure(self, namespace: str, entry_id: str) -> Dict:
+        """
+        Retrieve a specific entry by its ID.
+
+        :param namespace: The namespace of the entry.
+        :param entry_id: The ID of the entry to retrieve.
+        :return: A dictionary representing the retrieved entry.
+        """
+        try:
+            return await get_entry_by_id(self.http_client, self.base_url, namespace, entry_id)
+        except Exception as e:
+            raise Exception(f"Network Error: {e}")
+
+    async def scope_failure(self, namespace: str, entry_id: str) -> Dict:
+        """
+        Retrieve a specific entry by its ID.
+
+        :param namespace: The namespace of the entry.
+        :param entry_id: The ID of the entry to retrieve.
+        :return: A dictionary representing the retrieved entry.
+        """
+        try:
+            return await get_entry_by_id(self.http_client, self.base_url, namespace, entry_id)
+        except Exception as e:
+            raise Exception(f"Out of Scope Error: {e}")
+
+    async def heavy_load(self, namespace: str) -> Dict:
+        """
+        Retrieve all entries from the specified namespace.
+
+        :param namespace: The namespace from which to retrieve entries.
+        :return: A dictionary containing the retrieved entries.
+        """
+        try:
+            return await get_entries(self.http_client, self.base_url, namespace)
+        except Exception as e:
+            raise Exception(f"Too Many Requests Error: {e}")
+        
+    async def internal_failure(self, namespace: str) -> Dict:
+        """
+        Retrieve all entries from the specified namespace.
+
+        :param namespace: The namespace from which to retrieve entries.
+        :return: A dictionary containing the retrieved entries.
+        """
+        try:
+            return await get_entries(self.http_client, self.base_url, namespace)
+        except Exception as e:
+            raise Exception(f"Internal Server Error: {e}")
+        
+    async def large_data_entry(self, namespace: str, entry_id: str) -> Dict:
+        """
+        Retrieve a specific entry by its ID.
+
+        :param namespace: The namespace of the entry.
+        :param entry_id: The ID of the entry to retrieve.
+        :return: A dictionary representing the retrieved entry.
+        """
+        try:
+            return await get_entry_by_id(self.http_client, self.base_url, namespace, entry_id)
+        except Exception as e:
+            raise Exception(f"Request Entity Too Large Error: {e}")
+
+    async def unprocessable_data_entry(self, namespace: str, entry_id: str) -> Dict:
+        """
+        Retrieve a specific entry by its ID.
+
+        :param namespace: The namespace of the entry.
+        :param entry_id: The ID of the entry to retrieve.
+        :return: A dictionary representing the retrieved entry.
+        """
+        try:
+            return await get_entry_by_id(self.http_client, self.base_url, namespace, entry_id)
+        except Exception as e:
+            raise Exception(f"Unprocessable Entity Error: {e}")
+                        
     async def close(self):
         """
         Close the HTTP client session.

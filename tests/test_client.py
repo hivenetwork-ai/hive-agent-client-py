@@ -194,8 +194,9 @@ async def test_network_failure_handling():
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
-            await client.close()
+            await client.network_failure(namespace, entry_id)
         assert "Network Error" in str(excinfo.value)
+        await client.close()
 
 @pytest.mark.asyncio
 async def test_out_of_scope():
@@ -207,34 +208,34 @@ async def test_out_of_scope():
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
-            await client.close()     
+            await client.scope_failure(namespace, entry_id)
         assert "Out of Scope Error" in str(excinfo.value)
+        await client.close()
 
 @pytest.mark.asyncio
 async def test_heavy_load():
     namespace = "test"
-    entry_id = "1"
 
     with respx.mock() as mock:
-        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(429))
+        mock.get(f"{base_url}/api/entry/{namespace}").mock(return_value=httpx.Response(429))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
-            await client.close()     
+            await client.heavy_load(namespace)
         assert "Too Many Requests Error" in str(excinfo.value)
 
 @pytest.mark.asyncio
 async def test_internal_server():
     namespace = "test"
-    entry_id = "1"
 
     with respx.mock() as mock:
-        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(500))
+        mock.get(f"{base_url}/api/entry/{namespace}").mock(return_value=httpx.Response(500))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
-            await client.close()     
+            await client.internal_failure(namespace) 
         assert "Internal Server Error" in str(excinfo.value)
+        await client.close()
 
 @pytest.mark.asyncio
 async def test_large_data_entry():
@@ -246,7 +247,7 @@ async def test_large_data_entry():
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
-            await client.close()     
+            await client.large_data_entry(namespace, entry_id)
         assert "Request Entity Too Large Error" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -259,5 +260,5 @@ async def test_unprocessable_data_entry():
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
-            await client.close()     
+            await client.unprocessable_data_entry(namespace, entry_id)
         assert "Unprocessable Entity Error" in str(excinfo.value)
