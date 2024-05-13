@@ -1,6 +1,7 @@
 import httpx
 import logging
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -19,6 +20,7 @@ async def create_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     url = f"{base_url}{endpoint}"
 
     try:
+        logger.debug(f"Creating entry in {namespace} at {url}")
         response = await http_client.post(url, json=data)
         response.raise_for_status()
         return response.json()
@@ -41,6 +43,7 @@ async def stream_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     url = f"{base_url}{endpoint}"
 
     try:
+        logger.debug(f"Streaming data to {namespace} at {url}")
         async with http_client.ws(url) as ws:
             try:
                 async for data in data_stream:
@@ -69,6 +72,7 @@ async def get_entries(http_client: httpx.AsyncClient, base_url: str, namespace: 
     url = f"{base_url}{endpoint}"
 
     try:
+        logger.debug(f"Getting all entries in {namespace} at {url}")
         response = await http_client.get(url)
         response.raise_for_status()
         return response.json()
@@ -92,6 +96,7 @@ async def get_entry_by_id(http_client: httpx.AsyncClient, base_url: str, namespa
     url = f"{base_url}{endpoint}"
 
     try:
+        logger.debug(f"Getting entry {entry_id} from {namespace} at {url}")
         response = await http_client.get(url)
         response.raise_for_status()
         return response.json()
@@ -116,6 +121,7 @@ async def update_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     url = f"{base_url}{endpoint}"
 
     try:
+        logger.debug(f"Updating entry {entry_id} from {namespace} with {data} at {url}")
         response = await http_client.put(url, json=data)
         response.raise_for_status()
         return response.json()
@@ -139,6 +145,7 @@ async def delete_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     url = f"{base_url}{endpoint}"
 
     try:
+        logger.debug(f"Deleting {entry_id} from {namespace} at {url}")
         response = await http_client.delete(url)
         response.raise_for_status()
         return response.json()
