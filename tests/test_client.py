@@ -4,7 +4,8 @@ import respx
 
 from hive_agent_client import HiveAgentClient
 
-base_url = "http://example.com"
+api_version = "v1.0"
+base_url = "http://example.com/api/{api_version}"
 
 def check_response(response: int) -> int:        
     if response != 200:
