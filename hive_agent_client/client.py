@@ -135,3 +135,4 @@ class HiveAgentClient:
         """
         logger.debug("Closing HTTP client session...")
         await self.http_client.aclose()
+      
