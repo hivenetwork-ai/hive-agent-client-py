@@ -6,7 +6,12 @@ from hive_agent_client import HiveAgentClient
 
 base_url = "http://example.com"
 
-
+def check_response(response: int) -> int:        
+    if response != 200:
+        raise Exception(f"Unexpected status code: {response}")
+    else:
+        return response
+        
 @pytest.mark.asyncio
 async def test_chat_success():
     content = "Hello"
@@ -192,11 +197,10 @@ async def test_network_failure_handling():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(504))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
         with pytest.raises(Exception) as excinfo:
-            await client.check_response(response.status_code)
+            check_response(response.status_code)
         assert "Unexpected status code" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -207,11 +211,10 @@ async def test_out_of_scope():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(404))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
         with pytest.raises(Exception) as excinfo:
-            await client.check_response(response.status_code)
+            check_response(response.status_code)
         assert "Unexpected status code" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -222,11 +225,10 @@ async def test_heavy_load():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(429))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
         with pytest.raises(Exception) as excinfo:
-            await client.check_response(response.status_code)
+            check_response(response.status_code)
         assert "Unexpected status code" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -237,11 +239,10 @@ async def test_internal_server():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(500))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
         with pytest.raises(Exception) as excinfo:
-            await client.check_response(response.status_code)
+            check_response(response.status_code)
         assert "Unexpected status code" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -252,11 +253,10 @@ async def test_large_data_entry():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(413))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
         with pytest.raises(Exception) as excinfo:
-            await client.check_response(response.status_code)
+            check_response(response.status_code)
         assert "Unexpected status code" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -267,11 +267,10 @@ async def test_unprocessable_data_entry():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(422))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
         with pytest.raises(Exception) as excinfo:
-            await client.check_response(response.status_code)
+            check_response(response.status_code)
         assert "Unexpected status code" in str(excinfo.value)
 
 @pytest.mark.asyncio
@@ -282,8 +281,7 @@ async def test_response_success():
     with respx.mock() as mock:
         mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(200))
 
-        client = HiveAgentClient(base_url)
         response = await httpx.AsyncClient().get(f"{base_url}/api/entry/{namespace}/{entry_id}")
 
-        await client.check_response(response.status_code)
+        check_response(response.status_code)
         assert response.status_code == 200
