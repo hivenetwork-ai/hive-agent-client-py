@@ -22,7 +22,6 @@ class HiveAgentClient:
     """
 
     def __init__(self, base_url: str, version: str = "/api/v1"):
-    def __init__(self, base_url: str, version: str = "/v1/"):
         """
         Initializes the HiveAgentClient with the given base URL.
 
