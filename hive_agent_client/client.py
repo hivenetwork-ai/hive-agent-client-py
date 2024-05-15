@@ -21,13 +21,13 @@ class HiveAgentClient:
     Client for interacting with a Hive Agent's API.
     """
 
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str, version: str = "/api/v1"):
         """
         Initializes the HiveAgentClient with the given base URL.
 
         :param base_url: The base URL of the Hive Agent API.
         """
-        self.base_url = base_url
+        self.base_url = base_url.rstrip('/') + version
         self.http_client = httpx.AsyncClient()
 
     async def chat(self, content: str) -> str:
