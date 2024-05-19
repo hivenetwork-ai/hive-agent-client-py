@@ -11,8 +11,9 @@ To use the `HiveAgentClient` library, you first need to ensure that you have Pyt
 
 1. **Install Poetry**
 
-    If you don't have Poetry installed, you can install it using the following command:
+    If you don't have Poetry installed, you can install it using the following commands:
     `$ curl -sSL https://install.python-poetry.org | python3 -`
+    `$ export PATH="$HOME/.local/bin:$PATH"`
 
 2. **Install Dependencies**
 
