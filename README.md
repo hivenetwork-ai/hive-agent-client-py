@@ -9,13 +9,19 @@ Client library to interact with Hive Agents.
 
 To use the `HiveAgentClient` library, you first need to ensure that you have Python installed on your system and then install the required dependencies.
 
-1. **Install Python**
+1. **Install Poetry**
 
-   Make sure you have Python 3.6 or higher installed on your system. You can download Python from the [official website](https://www.python.org/downloads/).
+    If you don't have Poetry installed, you can install it using the following command:
+    `$ curl -sSL https://install.python-poetry.org | python3 -`
 
 2. **Install Dependencies**
 
-   `$ pip install -r requirements.txt`
+    `$ poetry install`
+
+3. **Activate the Virtual Environment**
+    Activate the virtual environment created by Poetry with the following command:
+    `$ poetry shell`
+
 
 ## Usage
 
