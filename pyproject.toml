@@ -2,6 +2,7 @@
 name = "hive-agent-client"
 version = "0.0.1"
 description = "Client library to interact with Hive Agents."
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
