@@ -15,13 +15,13 @@ To use the `HiveAgentClient` library, you first need to ensure that you have Pyt
     `$ curl -sSL https://install.python-poetry.org | python3 -`
     `$ export PATH="$HOME/.local/bin:$PATH"`
 
-2. **Install Dependencies**
-
-    `$ poetry install`
-
-3. **Activate the Virtual Environment**
+2. **Activate the Virtual Environment**
     Activate the virtual environment created by Poetry with the following command:
     `$ poetry shell`
+
+3. **Install Dependencies**
+
+    `$ poetry install --no-root`
 
 
 ## Usage
