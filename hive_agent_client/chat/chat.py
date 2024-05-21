@@ -1,7 +1,14 @@
 import httpx
 import logging
 
-logger = logging.getLogger(__name__)
+from utils.utils import get_log_level
+
+get_log_level()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
+
+logger = logging.getLogger()
+logger.setLevel(get_log_level())
 
 
 async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, content: str) -> str:
@@ -33,11 +40,11 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
         response.raise_for_status()
         return response.text
     except httpx.HTTPStatusError as e:
-        logger.error(f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}")
+        logging.error(f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}")
         raise Exception(f"HTTP error occurred when sending message to the chat API: {e.response.status_code} - {e.response.text}")
     except httpx.RequestError as e:
-        logger.error(f"Request error occurred when sending message to {url}: {e}")
+        logging.error(f"Request error occurred when sending message to {url}: {e}")
         raise Exception(f"Request error occurred when sending message to the chat API: {e}")
     except Exception as e:
-        logger.error(f"An unexpected error occurred when sending message to {url}: {e}")
+        logging.error(f"An unexpected error occurred when sending message to {url}: {e}")
         raise Exception(f"An unexpected error occurred when sending message to the chat API: {e}")
