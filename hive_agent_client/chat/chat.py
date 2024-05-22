@@ -40,8 +40,10 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
     }
 
     try:
+        logging.debug(f"Sending chat message to {url}: {content}")
         response = await http_client.post(url, json=payload)
         response.raise_for_status()
+        logger.debug(f"Response from chat message {content}: {response.text}")
         return response.text
     except httpx.HTTPStatusError as e:
         logging.error(f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}")

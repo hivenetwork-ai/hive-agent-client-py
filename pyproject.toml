@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "hive-agent-client"
+version = "0.0.1"
+description = "Client library to interact with Hive Agents."
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+httpx = "^0.27.0"
+
+[tool.poetry.dev-dependencies]
+python = "^3.8"
+pytest = "^8.1.1"
+pytest-asyncio = "^0.23.6"
+pytest-mock = "^3.14.0"
+httpx = "^0.27.0"
+respx = "^0.21.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

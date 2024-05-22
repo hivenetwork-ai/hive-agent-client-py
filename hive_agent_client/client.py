@@ -1,4 +1,5 @@
 import httpx
+import logging
 
 from typing import AsyncGenerator, Dict
 
@@ -12,6 +13,8 @@ from hive_agent_client.entry import (
     delete_entry
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class HiveAgentClient:
     """
@@ -35,8 +38,10 @@ class HiveAgentClient:
         :return: The response from the chat API as a string.
         """
         try:
+            logger.debug(f"Sending message to chat endpoint: {content}")
             return await send_chat_message(self.http_client, self.base_url, content)
         except Exception as e:
+            logger.error(f"Failed to send chat message - {content}: {e}")
             raise Exception(f"Failed to send chat message: {e}")
 
     async def create_entry(self, namespace: str, data: dict) -> Dict:
@@ -50,6 +55,7 @@ class HiveAgentClient:
         try:
             return await create_entry(self.http_client, self.base_url, namespace, data)
         except Exception as e:
+            logger.error(f"Failed to create entry {data} in {namespace}: {e}")
             raise Exception(f"Failed to create entry: {e}")
 
     async def stream_entry_data(self, namespace: str, data_stream: AsyncGenerator) -> AsyncGenerator:
@@ -64,6 +70,7 @@ class HiveAgentClient:
             async for message in stream_entry(self.http_client, self.base_url, namespace, data_stream):
                 yield message
         except Exception as e:
+            logger.error(f"Failed to stream entry data from {namespace}: {e}")
             raise Exception(f"Failed to stream entry data: {e}")
 
     async def get_entries(self, namespace: str) -> Dict:
@@ -76,6 +83,7 @@ class HiveAgentClient:
         try:
             return await get_entries(self.http_client, self.base_url, namespace)
         except Exception as e:
+            logger.error(f"Failed to get entries in {namespace}: {e}")
             raise Exception(f"Failed to get entries: {e}")
 
     async def get_entry_by_id(self, namespace: str, entry_id: str) -> Dict:
@@ -89,6 +97,7 @@ class HiveAgentClient:
         try:
             return await get_entry_by_id(self.http_client, self.base_url, namespace, entry_id)
         except Exception as e:
+            logger.error(f"Failed to get entry {entry_id} from {namespace}: {e}")
             raise Exception(f"Failed to get entry by ID: {e}")
 
     async def update_entry(self, namespace: str, entry_id: str, data: dict) -> Dict:
@@ -103,6 +112,7 @@ class HiveAgentClient:
         try:
             return await update_entry(self.http_client, self.base_url, namespace, entry_id, data)
         except Exception as e:
+            logger.error(f"Failed to update entry {entry_id} from {namespace} with {data}: {e}")
             raise Exception(f"Failed to update entry: {e}")
 
     async def delete_entry(self, namespace: str, entry_id: str) -> Dict:
@@ -116,10 +126,13 @@ class HiveAgentClient:
         try:
             return await delete_entry(self.http_client, self.base_url, namespace, entry_id)
         except Exception as e:
+            logger.error(f"Failed to delete entry {entry_id} from {namespace}: {e}")
             raise Exception(f"Failed to delete entry: {e}")
 
     async def close(self):
         """
         Close the HTTP client session.
         """
+        logger.debug("Closing HTTP client session...")
         await self.http_client.aclose()
+      
