@@ -1,6 +1,6 @@
 # Using the Hive Agent Client: A Tutorial
 
-This tutorial will guide you through using the `HiveAgentClient`, a Python class designed to interact with a Hive Agent's API. The client facilitates various operations such as sending chat messages, managing entries, and streaming data.
+This tutorial will guide you through using the `HiveAgentClient`, a Python class designed to interact with a Hive Agent's API. The client facilitates various operations such as sending chat messages and sending data to a Hive Agent.
 
 ## Setup
 
@@ -36,79 +36,82 @@ async def send_message(content):
         print("Error:", e)
 ```
 
-## Creating an Entry
+## Creating a Table
 
-Create a new entry in a specified namespace:
+Create a new table in the database:
 
 ```python
-async def create_new_entry(namespace, data):
+async def create_new_table(table_name, columns):
     try:
-        entry = await client.create_entry(namespace, data)
-        print("Created entry:", entry)
+        response = await client.create_table(table_name, columns)
+        print("Table creation response:", response)
     except Exception as e:
         print("Error:", e)
 ```
 
-## Streaming Entry Data
+## Inserting Data
 
-To stream data to an entry, use the `stream_entry_data` method. Ensure your data source is an asynchronous generator:
+Insert data into a specified table:
 
 ```python
-async def stream_data(namespace, data_stream):
+async def insert_new_data(table_name, data):
     try:
-        async for message in client.stream_entry_data(namespace, data_stream):
-            print("Stream response:", message)
+        response = await client.insert_data(table_name, data)
+        print("Data insertion response:", response)
     except Exception as e:
         print("Error:", e)
 ```
 
-## Retrieving Entries
+## Read Data
 
-To get all entries from a namespace:
+To get data from a table with optional filters:
 
 ```python
-async def retrieve_entries(namespace):
+async def retrieve_data(table_name, filters=None):
     try:
-        entries = await client.get_entries(namespace)
-        print("Entries:", entries)
+        data = await client.read_data(table_name, filters)
+        print("Retrieved data:", data)
     except Exception as e:
         print("Error:", e)
 ```
 
-## Retrieving a Specific Entry
+## Read Specific Data with Filters
 
-To retrieve a specific entry by ID:
+To read specific data, use filters:
 
 ```python
-async def retrieve_entry_by_id(namespace, entry_id):
+async def retrieve_filtered_data(table_name):
+    filters = {"id": [1], "name": ["Test"]}
     try:
-        entry = await client.get_entry_by_id(namespace, entry_id)
-        print("Entry:", entry)
+        data = await client.read_data(table_name, filters)
+        print("Filtered data:", data)
     except Exception as e:
         print("Error:", e)
 ```
 
-## Updating an Entry
+## Updating Data
 
-To update an existing entry:
+To update existing data in a table:
+
 
 ```python
-async def update_existing_entry(namespace, entry_id, data):
+async def update_existing_data(table_name, row_id, new_data):
     try:
-        updated_entry = await client.update_entry(namespace, entry_id, data)
-        print("Updated entry:", updated_entry)
+        updated_data = await client.update_data(table_name, row_id, new_data)
+        print("Updated data:", updated_data)
     except Exception as e:
         print("Error:", e)
 ```
 
-## Deleting an Entry
+## Deleting Data
 
-To delete an entry:
+To delete data from a table:
+
 
 ```python
-async def delete_existing_entry(namespace, entry_id):
+async def delete_existing_data(table_name, row_id):
     try:
-        result = await client.delete_entry(namespace, entry_id)
+        result = await client.delete_data(table_name, row_id)
         print("Delete result:", result)
     except Exception as e:
         print("Error:", e)
@@ -132,16 +135,16 @@ import asyncio
 
 async def main():
     await send_message("Hello, world!")
-    await create_new_entry("my_namespace", {"key": "value"})
-    await retrieve_entries("my_namespace")
-    await retrieve_entry_by_id("my_namespace", "entry_id")
-    await update_existing_entry("my_namespace", "entry_id", {"key": "new value"})
-    await delete_existing_entry("my_namespace", "entry_id")
+    await create_new_table("my_table", {"id": "Integer", "name": "String"})
+    await insert_new_data("my_table", {"name": "Test"})
+    await retrieve_data("my_table", {"id": [1]})
+    await update_existing_data("my_table", 1, {"name": "Updated Test"})
+    await delete_existing_data("my_table", 1)
     await close_client()
 
 asyncio.run(main())
 ```
 
-Replace `"my_namespace"`, `"entry_id"`, and other placeholders with your actual data.
+Replace "my_table", {"id": "Integer", "name": "String"}, and other placeholders with your actual data.
 
-This tutorial provides a basic overview of how to interact with the Hive Agent API using the `HiveAgentClient`. Adapt the examples to fit your application's requirements.
+This tutorial provides a basic overview of how to interact with the Hive Agent API using the HiveAgentClient.
