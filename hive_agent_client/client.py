@@ -1,7 +1,6 @@
 import httpx
 import logging
-
-from typing import Dict
+from typing import Dict, List
 
 from hive_agent_client.chat import send_chat_message
 from hive_agent_client.database import (
@@ -10,6 +9,12 @@ from hive_agent_client.database import (
     read_data,
     update_data,
     delete_data
+)
+from hive_agent_client.files import (
+    upload_files,
+    list_files,
+    delete_file,
+    rename_file
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -114,6 +119,58 @@ class HiveAgentClient:
         except Exception as e:
             logger.error(f"Failed to delete data from table {table_name} with id {row_id}: {e}")
             raise Exception(f"Failed to delete data: {e}")
+
+    async def upload_files(self, file_paths: List[str]) -> Dict:
+        """
+        Upload files to the server.
+
+        :param file_paths: A list of file paths to be uploaded.
+        :return: A dictionary with the names of the uploaded files.
+        """
+        try:
+            return await upload_files(self.http_client, self.base_url, file_paths)
+        except Exception as e:
+            logger.error(f"Failed to upload files {file_paths}: {e}")
+            raise Exception(f"Failed to upload files: {e}")
+
+    async def list_files(self) -> Dict:
+        """
+        List all files stored on the server.
+
+        :return: A dictionary with a list of file names.
+        """
+        try:
+            return await list_files(self.http_client, self.base_url)
+        except Exception as e:
+            logger.error(f"Failed to list files: {e}")
+            raise Exception(f"Failed to list files: {e}")
+
+    async def delete_file(self, filename: str) -> Dict:
+        """
+        Delete a specified file from the server.
+
+        :param filename: The name of the file to be deleted.
+        :return: A dictionary with a message about the file deletion.
+        """
+        try:
+            return await delete_file(self.http_client, self.base_url, filename)
+        except Exception as e:
+            logger.error(f"Failed to delete file {filename}: {e}")
+            raise Exception(f"Failed to delete file: {e}")
+
+    async def rename_file(self, old_filename: str, new_filename: str) -> Dict:
+        """
+        Rename a specified file on the server.
+
+        :param old_filename: The current name of the file.
+        :param new_filename: The new name for the file.
+        :return: A dictionary with a message about the file renaming.
+        """
+        try:
+            return await rename_file(self.http_client, self.base_url, old_filename, new_filename)
+        except Exception as e:
+            logger.error(f"Failed to rename file from {old_filename} to {new_filename}: {e}")
+            raise Exception(f"Failed to rename file: {e}")
 
     async def close(self):
         """
