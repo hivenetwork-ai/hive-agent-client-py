@@ -14,14 +14,14 @@ async def test_send_chat_message_success():
     mock_response.text = "Hello, world!"
     mock_client.post.return_value = mock_response
 
-    base_url = "http://example.com"
+    base_url = "http://example.com/api/v1"
     content = "Hello, how are you?"
 
     result = await send_chat_message(mock_client, base_url, content)
 
     assert result == "Hello, world!"
     mock_client.post.assert_called_once_with(
-        "http://example.com/api/chat",
+        "http://example.com/api/v1/chat",
         json={"messages": [{"role": "user", "content": content}]}
     )
 

@@ -19,8 +19,9 @@ from hive_agent_client import HiveAgentClient
 Instantiate the client with the base URL of your Hive Agent API:
 
 ```python
-base_url = "https://api.example.com"  # Replace with your actual API URL
-client = HiveAgentClient(base_url)
+base_url = "https://localhost:8000/api/"  # replace with your actual API URL
+version = "v1" # optional param
+client = HiveAgentClient(base_url, version)
 ```
 
 ## Sending Chat Messages

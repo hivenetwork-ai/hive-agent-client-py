@@ -3,16 +3,17 @@ import logging
 import os
 import sys
 
+
 def get_log_level():
-        HIVE_AGENT_LOG_LEVEL = os.getenv('HIVE_AGENT_LOG_LEVEL', 'INFO').upper()
-        return getattr(logging, HIVE_AGENT_LOG_LEVEL, logging.INFO)
+    HIVE_AGENT_LOG_LEVEL = os.getenv('HIVE_AGENT_LOG_LEVEL', 'INFO').upper()
+    return getattr(logging, HIVE_AGENT_LOG_LEVEL, logging.INFO)
+
 
 logging.basicConfig(stream=sys.stdout, level=get_log_level())
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 logger = logging.getLogger()
 logger.setLevel(get_log_level())
-
 
 
 async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, content: str) -> str:
@@ -30,7 +31,7 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
     if not content.strip():
         raise ValueError("Content must not be empty")
 
-    endpoint = "/api/chat"
+    endpoint = "/chat"
     url = f"{base_url}{endpoint}"
     payload = {
         "messages": [{
@@ -46,8 +47,10 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
         logger.debug(f"Response from chat message {content}: {response.text}")
         return response.text
     except httpx.HTTPStatusError as e:
-        logging.error(f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}")
-        raise Exception(f"HTTP error occurred when sending message to the chat API: {e.response.status_code} - {e.response.text}")
+        logging.error(
+            f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}")
+        raise Exception(
+            f"HTTP error occurred when sending message to the chat API: {e.response.status_code} - {e.response.text}")
     except httpx.RequestError as e:
         logging.error(f"Request error occurred when sending message to {url}: {e}")
         raise Exception(f"Request error occurred when sending message to the chat API: {e}")
