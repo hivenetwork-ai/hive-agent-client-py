@@ -27,7 +27,7 @@ class HiveAgentClient:
 
         :param base_url: The base URL of the Hive Agent API.
         """
-        self.base_url = base_url.rstrip('/') + version
+        self.base_url = base_url + version
         self.http_client = httpx.AsyncClient()
 
     async def chat(self, content: str) -> str:

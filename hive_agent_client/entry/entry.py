@@ -16,7 +16,7 @@ async def create_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     :return: The created entry as a dictionary.
     :raises Exception: If the HTTP request fails or the API returns an error response.
     """
-    endpoint = f"/api/entry/{namespace}"
+    endpoint = f"/entry/{namespace}"
     url = f"{base_url}{endpoint}"
 
     try:
@@ -40,7 +40,7 @@ async def stream_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     :param data_stream: An asynchronous iterable providing the data to be streamed.
     :raises RuntimeError: If WebSocket communication or data processing fails.
     """
-    endpoint = f"/api/entry/{namespace}/stream"
+    endpoint = f"/entry/{namespace}/stream"
     url = f"{base_url}{endpoint}"
 
     try:
@@ -69,7 +69,7 @@ async def get_entries(http_client: httpx.AsyncClient, base_url: str, namespace: 
     :return: A dictionary containing all entries from the namespace.
     :raises Exception: If the HTTP request fails or the API returns an error response.
     """
-    endpoint = f"/api/entry/{namespace}"
+    endpoint = f"/entry/{namespace}"
     url = f"{base_url}{endpoint}"
 
     try:
@@ -94,7 +94,7 @@ async def get_entry_by_id(http_client: httpx.AsyncClient, base_url: str, namespa
     :return: A dictionary representing the requested entry.
     :raises Exception: If the HTTP request fails or the API returns an error response.
     """
-    endpoint = f"/api/entry/{namespace}/{entry_id}"
+    endpoint = f"/entry/{namespace}/{entry_id}"
     url = f"{base_url}{endpoint}"
 
     try:
@@ -120,7 +120,7 @@ async def update_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     :return: A dictionary representing the updated entry.
     :raises Exception: If the HTTP request fails or the API returns an error response.
     """
-    endpoint = f"/api/entry/{namespace}/{entry_id}"
+    endpoint = f"/entry/{namespace}/{entry_id}"
     url = f"{base_url}{endpoint}"
 
     try:
@@ -145,7 +145,7 @@ async def delete_entry(http_client: httpx.AsyncClient, base_url: str, namespace:
     :return: A dictionary indicating the result of the deletion operation.
     :raises Exception: If the HTTP request fails or the API returns an error response.
     """
-    endpoint = f"/api/entry/{namespace}/{entry_id}"
+    endpoint = f"/entry/{namespace}/{entry_id}"
     url = f"{base_url}{endpoint}"
 
     try:

@@ -11,7 +11,7 @@ from hive_agent_client.entry import (
     delete_entry
 )
 
-base_url = "http://example.com"
+base_url = "http://example.com/api/v1"
 namespace = "test-namespace"
 
 
@@ -21,7 +21,7 @@ async def test_create_entry_success():
     expected_response = {"id": "123", "key": "value"}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/api/entry/{namespace}", json=data).mock(
+        mock.post(f"{base_url}/entry/{namespace}", json=data).mock(
             return_value=httpx.Response(200, json=expected_response))
 
         async with httpx.AsyncClient() as client:
@@ -34,7 +34,7 @@ async def test_create_entry_http_error():
     data = {"key": "value"}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/api/entry/{namespace}", json=data).mock(return_value=httpx.Response(400))
+        mock.post(f"{base_url}/entry/{namespace}", json=data).mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -47,7 +47,7 @@ async def test_get_entries_success():
     expected_response = [{"id": "123", "key": "value"}]
 
     with respx.mock() as mock:
-        mock.get(f"{base_url}/api/entry/{namespace}").mock(return_value=httpx.Response(200, json=expected_response))
+        mock.get(f"{base_url}/entry/{namespace}").mock(return_value=httpx.Response(200, json=expected_response))
 
         async with httpx.AsyncClient() as client:
             response = await get_entries(client, base_url, namespace)
@@ -57,7 +57,7 @@ async def test_get_entries_success():
 @pytest.mark.asyncio
 async def test_get_entries_http_error():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/api/entry/{namespace}").mock(return_value=httpx.Response(400))
+        mock.get(f"{base_url}/entry/{namespace}").mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -71,7 +71,7 @@ async def test_get_entry_by_id_success():
     expected_response = {"id": "123", "key": "value"}
 
     with respx.mock() as mock:
-        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(
+        mock.get(f"{base_url}/entry/{namespace}/{entry_id}").mock(
             return_value=httpx.Response(200, json=expected_response))
 
         async with httpx.AsyncClient() as client:
@@ -84,7 +84,7 @@ async def test_get_entry_by_id_http_error():
     entry_id = "123"
 
     with respx.mock() as mock:
-        mock.get(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(400))
+        mock.get(f"{base_url}/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -99,7 +99,7 @@ async def test_update_entry_success():
     expected_response = {"id": "123", "key": "updated value"}
 
     with respx.mock() as mock:
-        mock.put(f"{base_url}/api/entry/{namespace}/{entry_id}", json=data).mock(
+        mock.put(f"{base_url}/entry/{namespace}/{entry_id}", json=data).mock(
             return_value=httpx.Response(200, json=expected_response))
 
         async with httpx.AsyncClient() as client:
@@ -113,7 +113,7 @@ async def test_update_entry_http_error():
     data = {"key": "updated value"}
 
     with respx.mock() as mock:
-        mock.put(f"{base_url}/api/entry/{namespace}/{entry_id}", json=data).mock(return_value=httpx.Response(400))
+        mock.put(f"{base_url}/entry/{namespace}/{entry_id}", json=data).mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -127,7 +127,7 @@ async def test_delete_entry_success():
     expected_response = {"message": "Entry deleted"}
 
     with respx.mock() as mock:
-        mock.delete(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(
+        mock.delete(f"{base_url}/entry/{namespace}/{entry_id}").mock(
             return_value=httpx.Response(200, json=expected_response))
 
         async with httpx.AsyncClient() as client:
@@ -140,7 +140,7 @@ async def test_delete_entry_http_error():
     entry_id = "123"
 
     with respx.mock() as mock:
-        mock.delete(f"{base_url}/api/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(400))
+        mock.delete(f"{base_url}/entry/{namespace}/{entry_id}").mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:

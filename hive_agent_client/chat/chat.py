@@ -20,7 +20,7 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
     if not content.strip():
         raise ValueError("Content must not be empty")
 
-    endpoint = "/api/chat"
+    endpoint = "/chat"
     url = f"{base_url}{endpoint}"
     payload = {
         "messages": [{
