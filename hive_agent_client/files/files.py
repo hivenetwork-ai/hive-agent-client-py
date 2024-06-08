@@ -1,5 +1,6 @@
 import httpx
 import logging
+import mimetypes
 import os
 import sys
 
@@ -18,6 +19,9 @@ logger = logging.getLogger()
 logger.setLevel(get_log_level())
 
 
+ALLOWED_FILE_TYPES = ['application/json', 'text/csv', 'text/plain', 'application/pdf']
+
+
 async def upload_files(http_client: httpx.AsyncClient, base_url: str, file_paths: List[str]) -> dict:
     """
     Uploads files to the server.
@@ -30,7 +34,16 @@ async def upload_files(http_client: httpx.AsyncClient, base_url: str, file_paths
     """
     endpoint = "/uploadfiles/"
     url = f"{base_url}{endpoint}"
-    files = [("files", (os.path.basename(file_path), open(file_path, "rb"), "multipart/form-data")) for file_path in file_paths]
+
+    files = []
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        content_type, _ = mimetypes.guess_type(file_path)
+
+        if content_type is None or content_type not in ALLOWED_FILE_TYPES:
+            raise ValueError(f"File type {content_type} is not allowed or missing for file {file_name}")
+
+        files.append(("files", (file_name, open(file_path, "rb"), content_type)))
 
     try:
         logger.debug(f"Uploading files to {url}")
@@ -39,7 +52,7 @@ async def upload_files(http_client: httpx.AsyncClient, base_url: str, file_paths
         logger.debug(f"Response for uploading files to {url}: {response.json()}")
         return response.json()
     except httpx.HTTPStatusError as e:
-        logging.error(f"Failed to upload files: {e}")
+        logger.error(f"Failed to upload files: {e}")
         raise Exception(f"Failed to upload files: {e.response.text}") from e
     finally:
         for _, (name, file, _) in files:
