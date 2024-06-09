@@ -81,7 +81,7 @@ class HiveAgentClient:
             logger.error(f"Failed to insert data {data} into table {table_name}: {e}")
             raise Exception(f"Failed to insert data: {e}")
 
-    async def read_data(self, table_name: str, filters: dict = None) -> Dict:
+    async def read_data(self, table_name: str, filters: dict = None) -> List[Dict]:
         """
         Retrieve data from a table.
 
