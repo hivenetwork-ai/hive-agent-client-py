@@ -34,7 +34,9 @@ async def test_chat_success():
     expected_response = "Response from chat"
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/chat").mock(return_value=httpx.Response(200, text=expected_response))
+        mock.post(f"{base_url}/v1/chat").mock(
+            return_value=httpx.Response(200, text=expected_response)
+        )
 
         client = HiveAgentClient(base_url, version)
         response = await client.chat(content)
@@ -61,8 +63,10 @@ async def test_create_table_success():
     expected_response = {"message": f"Table {table_name} created successfully."}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/database/create-table", json={"table_name": table_name, "columns": columns}).mock(
-            return_value=httpx.Response(200, json=expected_response))
+        mock.post(
+            f"{base_url}/v1/database/create-table",
+            json={"table_name": table_name, "columns": columns},
+        ).mock(return_value=httpx.Response(200, json=expected_response))
 
         client = HiveAgentClient(base_url)
         response = await client.create_table(table_name, columns)
@@ -75,8 +79,10 @@ async def test_create_table_failure():
     columns = {"id": "Integer", "name": "String"}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/database/create-table", json={"table_name": table_name, "columns": columns}).mock(
-            return_value=httpx.Response(400))
+        mock.post(
+            f"{base_url}/v1/database/create-table",
+            json={"table_name": table_name, "columns": columns},
+        ).mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -91,8 +97,10 @@ async def test_insert_data_success():
     expected_response = {"message": "Data inserted successfully.", "id": 1}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/database/insert-data", json={"table_name": table_name, "data": data}).mock(
-            return_value=httpx.Response(200, json=expected_response))
+        mock.post(
+            f"{base_url}/v1/database/insert-data",
+            json={"table_name": table_name, "data": data},
+        ).mock(return_value=httpx.Response(200, json=expected_response))
 
         client = HiveAgentClient(base_url)
         response = await client.insert_data(table_name, data)
@@ -105,8 +113,10 @@ async def test_insert_data_failure():
     data = {"name": "Test"}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/database/insert-data", json={"table_name": table_name, "data": data}).mock(
-            return_value=httpx.Response(400))
+        mock.post(
+            f"{base_url}/v1/database/insert-data",
+            json={"table_name": table_name, "data": data},
+        ).mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -121,8 +131,10 @@ async def test_read_data_success():
     expected_response = [{"id": 1, "name": "Test"}]
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/database/read-data", json={"table_name": table_name, "filters": filters}).mock(
-            return_value=httpx.Response(200, json=expected_response))
+        mock.post(
+            f"{base_url}/v1/database/read-data",
+            json={"table_name": table_name, "filters": filters},
+        ).mock(return_value=httpx.Response(200, json=expected_response))
 
         client = HiveAgentClient(base_url)
         response = await client.read_data(table_name, filters)
@@ -135,8 +147,10 @@ async def test_read_data_failure():
     filters = {"id": [1]}
 
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/database/read-data", json={"table_name": table_name, "filters": filters}).mock(
-            return_value=httpx.Response(400))
+        mock.post(
+            f"{base_url}/v1/database/read-data",
+            json={"table_name": table_name, "filters": filters},
+        ).mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -152,8 +166,10 @@ async def test_update_data_success():
     expected_response = {"message": "Data updated successfully."}
 
     with respx.mock() as mock:
-        mock.put(f"{base_url}/v1/database/update-data", json={"table_name": table_name, "id": row_id, "data": data}).mock(
-            return_value=httpx.Response(200, json=expected_response))
+        mock.put(
+            f"{base_url}/v1/database/update-data",
+            json={"table_name": table_name, "id": row_id, "data": data},
+        ).mock(return_value=httpx.Response(200, json=expected_response))
 
         client = HiveAgentClient(base_url)
         response = await client.update_data(table_name, row_id, data)
@@ -167,8 +183,10 @@ async def test_update_data_failure():
     data = {"name": "Updated Test"}
 
     with respx.mock() as mock:
-        mock.put(f"{base_url}/v1/database/update-data", json={"table_name": table_name, "id": row_id, "data": data}).mock(
-            return_value=httpx.Response(400))
+        mock.put(
+            f"{base_url}/v1/database/update-data",
+            json={"table_name": table_name, "id": row_id, "data": data},
+        ).mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -183,9 +201,11 @@ async def test_delete_data_success():
     expected_response = {"message": "Data deleted successfully."}
 
     with respx.mock() as mock:
-        mock.request("DELETE", f"{base_url}/v1/database/delete-data",
-                     content=json.dumps({"table_name": table_name, "id": row_id})).mock(
-            return_value=httpx.Response(200, json=expected_response))
+        mock.request(
+            "DELETE",
+            f"{base_url}/v1/database/delete-data",
+            content=json.dumps({"table_name": table_name, "id": row_id}),
+        ).mock(return_value=httpx.Response(200, json=expected_response))
 
         client = HiveAgentClient(base_url)
         response = await client.delete_data(table_name, row_id)
@@ -198,9 +218,11 @@ async def test_delete_data_failure():
     row_id = 1
 
     with respx.mock() as mock:
-        mock.request("DELETE", f"{base_url}/v1/database/delete-data",
-                     content=json.dumps({"table_name": table_name, "id": row_id})).mock(
-            return_value=httpx.Response(400))
+        mock.request(
+            "DELETE",
+            f"{base_url}/v1/database/delete-data",
+            content=json.dumps({"table_name": table_name, "id": row_id}),
+        ).mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -214,7 +236,8 @@ async def test_upload_files_success(temp_files):
 
     with respx.mock() as mock:
         mock.post(f"{base_url}/v1/uploadfiles/").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         client = HiveAgentClient(base_url)
         response = await client.upload_files(temp_files)
@@ -224,8 +247,7 @@ async def test_upload_files_success(temp_files):
 @pytest.mark.asyncio
 async def test_upload_files_failure(temp_files):
     with respx.mock() as mock:
-        mock.post(f"{base_url}/v1/uploadfiles/").mock(
-            return_value=httpx.Response(400))
+        mock.post(f"{base_url}/v1/uploadfiles/").mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -239,7 +261,8 @@ async def test_list_files_success():
 
     with respx.mock() as mock:
         mock.get(f"{base_url}/v1/files/").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         client = HiveAgentClient(base_url)
         response = await client.list_files()
@@ -249,8 +272,7 @@ async def test_list_files_success():
 @pytest.mark.asyncio
 async def test_list_files_failure():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/files/").mock(
-            return_value=httpx.Response(400))
+        mock.get(f"{base_url}/v1/files/").mock(return_value=httpx.Response(400))
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -265,7 +287,8 @@ async def test_delete_file_success():
 
     with respx.mock() as mock:
         mock.delete(f"{base_url}/v1/files/{filename}").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         client = HiveAgentClient(base_url)
         response = await client.delete_file(filename)
@@ -278,7 +301,8 @@ async def test_delete_file_failure():
 
     with respx.mock() as mock:
         mock.delete(f"{base_url}/v1/files/{filename}").mock(
-            return_value=httpx.Response(400))
+            return_value=httpx.Response(400)
+        )
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -290,11 +314,14 @@ async def test_delete_file_failure():
 async def test_rename_file_success():
     old_filename = "old_name.txt"
     new_filename = "new_name.txt"
-    expected_response = {"message": f"File {old_filename} renamed to {new_filename} successfully."}
+    expected_response = {
+        "message": f"File {old_filename} renamed to {new_filename} successfully."
+    }
 
     with respx.mock() as mock:
         mock.put(f"{base_url}/v1/files/{old_filename}/{new_filename}").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         client = HiveAgentClient(base_url)
         response = await client.rename_file(old_filename, new_filename)
@@ -308,7 +335,8 @@ async def test_rename_file_failure():
 
     with respx.mock() as mock:
         mock.put(f"{base_url}/v1/files/{old_filename}/{new_filename}").mock(
-            return_value=httpx.Response(400))
+            return_value=httpx.Response(400)
+        )
 
         client = HiveAgentClient(base_url)
         with pytest.raises(Exception) as excinfo:
@@ -324,10 +352,13 @@ async def test_close_http_client():
 
 # Negative Tests
 
+
 @pytest.mark.asyncio
 async def test_network_failure_handling():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(504))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(504)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
@@ -339,7 +370,9 @@ async def test_network_failure_handling():
 @pytest.mark.asyncio
 async def test_out_of_scope():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(404))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(404)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
@@ -351,7 +384,9 @@ async def test_out_of_scope():
 @pytest.mark.asyncio
 async def test_heavy_load():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(429))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(429)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
@@ -363,7 +398,9 @@ async def test_heavy_load():
 @pytest.mark.asyncio
 async def test_internal_server():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(500))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(500)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
@@ -375,7 +412,9 @@ async def test_internal_server():
 @pytest.mark.asyncio
 async def test_large_data_entry():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(413))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(413)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
@@ -387,7 +426,9 @@ async def test_large_data_entry():
 @pytest.mark.asyncio
 async def test_unprocessable_data_entry():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(422))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(422)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
@@ -399,7 +440,9 @@ async def test_unprocessable_data_entry():
 @pytest.mark.asyncio
 async def test_response_success():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/v1/database/read-data").mock(return_value=httpx.Response(200))
+        mock.get(f"{base_url}/v1/database/read-data").mock(
+            return_value=httpx.Response(200)
+        )
 
         response = await httpx.AsyncClient().get(f"{base_url}/v1/database/read-data")
 
