@@ -9,7 +9,7 @@ from typing import Optional
 
 
 def get_log_level():
-    HIVE_AGENT_LOG_LEVEL = os.getenv('HIVE_AGENT_LOG_LEVEL', 'INFO').upper()
+    HIVE_AGENT_LOG_LEVEL = os.getenv("HIVE_AGENT_LOG_LEVEL", "INFO").upper()
     return getattr(logging, HIVE_AGENT_LOG_LEVEL, logging.INFO)
 
 
@@ -20,7 +20,9 @@ logger = logging.getLogger()
 logger.setLevel(get_log_level())
 
 
-async def create_table(http_client: httpx.AsyncClient, base_url: str, table_name: str, columns: dict) -> dict:
+async def create_table(
+    http_client: httpx.AsyncClient, base_url: str, table_name: str, columns: dict
+) -> dict:
     """
     Creates a table in the database.
 
@@ -39,14 +41,20 @@ async def create_table(http_client: httpx.AsyncClient, base_url: str, table_name
         logger.debug(f"Creating table {table_name} at {url}")
         response = await http_client.post(url, json=data)
         response.raise_for_status()
-        logger.debug(f"Response for creating table {table_name} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for creating table {table_name} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
         logging.error(f"Failed to create table {table_name}: {e}")
-        raise Exception(f"Failed to create table {table_name}: {e.response.text}") from e
+        raise Exception(
+            f"Failed to create table {table_name}: {e.response.text}"
+        ) from e
 
 
-async def insert_data(http_client: httpx.AsyncClient, base_url: str, table_name: str, data: dict) -> dict:
+async def insert_data(
+    http_client: httpx.AsyncClient, base_url: str, table_name: str, data: dict
+) -> dict:
     """
     Inserts data into a table in the database.
 
@@ -65,15 +73,23 @@ async def insert_data(http_client: httpx.AsyncClient, base_url: str, table_name:
         logger.debug(f"Inserting data into {table_name} at {url}")
         response = await http_client.post(url, json=payload)
         response.raise_for_status()
-        logger.debug(f"Response for inserting data into {table_name} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for inserting data into {table_name} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
         logging.error(f"Failed to insert data into {table_name}: {e}")
-        raise Exception(f"Failed to insert data into {table_name}: {e.response.text}") from e
+        raise Exception(
+            f"Failed to insert data into {table_name}: {e.response.text}"
+        ) from e
 
 
-async def read_data(http_client: httpx.AsyncClient, base_url: str, table_name: str,
-                    filters: Optional[dict] = None) -> list:
+async def read_data(
+    http_client: httpx.AsyncClient,
+    base_url: str,
+    table_name: str,
+    filters: Optional[dict] = None,
+) -> list:
     """
     Reads data from a table in the database.
 
@@ -92,15 +108,24 @@ async def read_data(http_client: httpx.AsyncClient, base_url: str, table_name: s
         logger.debug(f"Reading data from {table_name} at {url} with filters: {filters}")
         response = await http_client.post(url, json=payload)
         response.raise_for_status()
-        logger.debug(f"Response for reading data from {table_name} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for reading data from {table_name} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
         logging.error(f"Failed to read data from {table_name}: {e}")
-        raise Exception(f"Failed to read data from {table_name}: {e.response.text}") from e
+        raise Exception(
+            f"Failed to read data from {table_name}: {e.response.text}"
+        ) from e
 
 
-async def update_data(http_client: httpx.AsyncClient, base_url: str, table_name: str, row_id: int,
-                      new_data: dict) -> dict:
+async def update_data(
+    http_client: httpx.AsyncClient,
+    base_url: str,
+    table_name: str,
+    row_id: int,
+    new_data: dict,
+) -> dict:
     """
     Updates data in a table in the database.
 
@@ -117,17 +142,25 @@ async def update_data(http_client: httpx.AsyncClient, base_url: str, table_name:
     payload = {"table_name": table_name, "id": row_id, "data": new_data}
 
     try:
-        logger.debug(f"Updating data in {table_name} with id {row_id} at {url} with new data: {new_data}")
+        logger.debug(
+            f"Updating data in {table_name} with id {row_id} at {url} with new data: {new_data}"
+        )
         response = await http_client.put(url, json=payload)
         response.raise_for_status()
-        logger.debug(f"Response for updating data in {table_name} with id {row_id} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for updating data in {table_name} with id {row_id} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
         logging.error(f"Failed to update data in {table_name} with id {row_id}: {e}")
-        raise Exception(f"Failed to update data in {table_name} with id {row_id}: {e.response.text}") from e
+        raise Exception(
+            f"Failed to update data in {table_name} with id {row_id}: {e.response.text}"
+        ) from e
 
 
-async def delete_data(http_client: httpx.AsyncClient, base_url: str, table_name: str, row_id: int) -> dict:
+async def delete_data(
+    http_client: httpx.AsyncClient, base_url: str, table_name: str, row_id: int
+) -> dict:
     """
     Deletes data from a table in the database.
 
@@ -146,9 +179,12 @@ async def delete_data(http_client: httpx.AsyncClient, base_url: str, table_name:
         logger.debug(f"Deleting data from {table_name} with id {row_id} at {url}")
         response = await http_client.request("DELETE", url, content=json.dumps(payload))
         response.raise_for_status()
-        logger.debug(f"Response for deleting data from {table_name} with id {row_id} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for deleting data from {table_name} with id {row_id} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
         logging.error(f"Failed to delete data from {table_name} with id {row_id}: {e}")
-        raise Exception(f"Failed to delete data from {table_name} with id {row_id}: {e.response.text}") from e
-
+        raise Exception(
+            f"Failed to delete data from {table_name} with id {row_id}: {e.response.text}"
+        ) from e

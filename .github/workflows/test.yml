@@ -23,6 +23,10 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Run Black
+        run: |
+          black hive_agent_client tests
+
       - name: Run tests with pytest
         run: |
           pytest

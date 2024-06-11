@@ -8,7 +8,7 @@ from typing import List
 
 
 def get_log_level():
-    HIVE_AGENT_LOG_LEVEL = os.getenv('HIVE_AGENT_LOG_LEVEL', 'INFO').upper()
+    HIVE_AGENT_LOG_LEVEL = os.getenv("HIVE_AGENT_LOG_LEVEL", "INFO").upper()
     return getattr(logging, HIVE_AGENT_LOG_LEVEL, logging.INFO)
 
 
@@ -19,10 +19,12 @@ logger = logging.getLogger()
 logger.setLevel(get_log_level())
 
 
-ALLOWED_FILE_TYPES = ['application/json', 'text/csv', 'text/plain', 'application/pdf']
+ALLOWED_FILE_TYPES = ["application/json", "text/csv", "text/plain", "application/pdf"]
 
 
-async def upload_files(http_client: httpx.AsyncClient, base_url: str, file_paths: List[str]) -> dict:
+async def upload_files(
+    http_client: httpx.AsyncClient, base_url: str, file_paths: List[str]
+) -> dict:
     """
     Uploads files to the server.
 
@@ -41,7 +43,9 @@ async def upload_files(http_client: httpx.AsyncClient, base_url: str, file_paths
         content_type, _ = mimetypes.guess_type(file_path)
 
         if content_type is None or content_type not in ALLOWED_FILE_TYPES:
-            raise ValueError(f"File type {content_type} is not allowed or missing for file {file_name}")
+            raise ValueError(
+                f"File type {content_type} is not allowed or missing for file {file_name}"
+            )
 
         files.append(("files", (file_name, open(file_path, "rb"), content_type)))
 
@@ -82,7 +86,9 @@ async def list_files(http_client: httpx.AsyncClient, base_url: str) -> dict:
         raise Exception(f"Failed to list files: {e.response.text}") from e
 
 
-async def delete_file(http_client: httpx.AsyncClient, base_url: str, filename: str) -> dict:
+async def delete_file(
+    http_client: httpx.AsyncClient, base_url: str, filename: str
+) -> dict:
     """
     Deletes a specified file from the server.
 
@@ -99,14 +105,18 @@ async def delete_file(http_client: httpx.AsyncClient, base_url: str, filename: s
         logger.debug(f"Deleting file {filename} at {url}")
         response = await http_client.delete(url)
         response.raise_for_status()
-        logger.debug(f"Response for deleting file {filename} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for deleting file {filename} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
         logging.error(f"Failed to delete file {filename}: {e}")
         raise Exception(f"Failed to delete file {filename}: {e.response.text}") from e
 
 
-async def rename_file(http_client: httpx.AsyncClient, base_url: str, old_filename: str, new_filename: str) -> dict:
+async def rename_file(
+    http_client: httpx.AsyncClient, base_url: str, old_filename: str, new_filename: str
+) -> dict:
     """
     Renames a specified file on the server.
 
@@ -124,8 +134,14 @@ async def rename_file(http_client: httpx.AsyncClient, base_url: str, old_filenam
         logger.debug(f"Renaming file from {old_filename} to {new_filename} at {url}")
         response = await http_client.put(url)
         response.raise_for_status()
-        logger.debug(f"Response for renaming file from {old_filename} to {new_filename} at {url}: {response.json()}")
+        logger.debug(
+            f"Response for renaming file from {old_filename} to {new_filename} at {url}: {response.json()}"
+        )
         return response.json()
     except httpx.HTTPStatusError as e:
-        logging.error(f"Failed to rename file from {old_filename} to {new_filename}: {e}")
-        raise Exception(f"Failed to rename file from {old_filename} to {new_filename}: {e.response.text}") from e
+        logging.error(
+            f"Failed to rename file from {old_filename} to {new_filename}: {e}"
+        )
+        raise Exception(
+            f"Failed to rename file from {old_filename} to {new_filename}: {e.response.text}"
+        ) from e

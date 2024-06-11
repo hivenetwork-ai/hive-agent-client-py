@@ -3,12 +3,7 @@ import httpx
 import pytest
 import respx
 
-from hive_agent_client.files import (
-    upload_files,
-    list_files,
-    delete_file,
-    rename_file
-)
+from hive_agent_client.files import upload_files, list_files, delete_file, rename_file
 
 base_url = "http://example.com"
 
@@ -30,7 +25,8 @@ async def test_upload_files_success(temp_files):
 
     with respx.mock() as mock:
         mock.post(f"{base_url}/uploadfiles/").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         async with httpx.AsyncClient() as client:
             response = await upload_files(client, base_url, temp_files)
@@ -40,8 +36,7 @@ async def test_upload_files_success(temp_files):
 @pytest.mark.asyncio
 async def test_upload_files_http_error(temp_files):
     with respx.mock() as mock:
-        mock.post(f"{base_url}/uploadfiles/").mock(
-            return_value=httpx.Response(400))
+        mock.post(f"{base_url}/uploadfiles/").mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -55,7 +50,8 @@ async def test_list_files_success():
 
     with respx.mock() as mock:
         mock.get(f"{base_url}/files/").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         async with httpx.AsyncClient() as client:
             response = await list_files(client, base_url)
@@ -65,8 +61,7 @@ async def test_list_files_success():
 @pytest.mark.asyncio
 async def test_list_files_http_error():
     with respx.mock() as mock:
-        mock.get(f"{base_url}/files/").mock(
-            return_value=httpx.Response(400))
+        mock.get(f"{base_url}/files/").mock(return_value=httpx.Response(400))
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -81,7 +76,8 @@ async def test_delete_file_success():
 
     with respx.mock() as mock:
         mock.delete(f"{base_url}/files/{filename}").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         async with httpx.AsyncClient() as client:
             response = await delete_file(client, base_url, filename)
@@ -94,7 +90,8 @@ async def test_delete_file_http_error():
 
     with respx.mock() as mock:
         mock.delete(f"{base_url}/files/{filename}").mock(
-            return_value=httpx.Response(400))
+            return_value=httpx.Response(400)
+        )
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:
@@ -106,11 +103,14 @@ async def test_delete_file_http_error():
 async def test_rename_file_success():
     old_filename = "old_name.txt"
     new_filename = "new_name.txt"
-    expected_response = {"message": f"File {old_filename} renamed to {new_filename} successfully."}
+    expected_response = {
+        "message": f"File {old_filename} renamed to {new_filename} successfully."
+    }
 
     with respx.mock() as mock:
         mock.put(f"{base_url}/files/{old_filename}/{new_filename}").mock(
-            return_value=httpx.Response(200, json=expected_response))
+            return_value=httpx.Response(200, json=expected_response)
+        )
 
         async with httpx.AsyncClient() as client:
             response = await rename_file(client, base_url, old_filename, new_filename)
@@ -124,7 +124,8 @@ async def test_rename_file_http_error():
 
     with respx.mock() as mock:
         mock.put(f"{base_url}/files/{old_filename}/{new_filename}").mock(
-            return_value=httpx.Response(400))
+            return_value=httpx.Response(400)
+        )
 
         async with httpx.AsyncClient() as client:
             with pytest.raises(Exception) as excinfo:

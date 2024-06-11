@@ -5,7 +5,7 @@ import sys
 
 
 def get_log_level():
-    HIVE_AGENT_LOG_LEVEL = os.getenv('HIVE_AGENT_LOG_LEVEL', 'INFO').upper()
+    HIVE_AGENT_LOG_LEVEL = os.getenv("HIVE_AGENT_LOG_LEVEL", "INFO").upper()
     return getattr(logging, HIVE_AGENT_LOG_LEVEL, logging.INFO)
 
 
@@ -16,7 +16,9 @@ logger = logging.getLogger()
 logger.setLevel(get_log_level())
 
 
-async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, content: str) -> str:
+async def send_chat_message(
+    http_client: httpx.AsyncClient, base_url: str, content: str
+) -> str:
     """
     Sends a chat message to the Hive Agent API and returns the response.
 
@@ -33,12 +35,7 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
 
     endpoint = "/chat"
     url = f"{base_url}{endpoint}"
-    payload = {
-        "messages": [{
-            "role": "user",
-            "content": content
-        }]
-    }
+    payload = {"messages": [{"role": "user", "content": content}]}
 
     try:
         logging.debug(f"Sending chat message to {url}: {content}")
@@ -48,12 +45,20 @@ async def send_chat_message(http_client: httpx.AsyncClient, base_url: str, conte
         return response.text
     except httpx.HTTPStatusError as e:
         logging.error(
-            f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}")
+            f"HTTP error occurred when sending message to {url}: {e.response.status_code} - {e.response.text}"
+        )
         raise Exception(
-            f"HTTP error occurred when sending message to the chat API: {e.response.status_code} - {e.response.text}")
+            f"HTTP error occurred when sending message to the chat API: {e.response.status_code} - {e.response.text}"
+        )
     except httpx.RequestError as e:
         logging.error(f"Request error occurred when sending message to {url}: {e}")
-        raise Exception(f"Request error occurred when sending message to the chat API: {e}")
+        raise Exception(
+            f"Request error occurred when sending message to the chat API: {e}"
+        )
     except Exception as e:
-        logging.error(f"An unexpected error occurred when sending message to {url}: {e}")
-        raise Exception(f"An unexpected error occurred when sending message to the chat API: {e}")
+        logging.error(
+            f"An unexpected error occurred when sending message to {url}: {e}"
+        )
+        raise Exception(
+            f"An unexpected error occurred when sending message to the chat API: {e}"
+        )

@@ -8,14 +8,9 @@ from hive_agent_client.database import (
     insert_data,
     read_data,
     update_data,
-    delete_data
+    delete_data,
 )
-from hive_agent_client.files import (
-    upload_files,
-    list_files,
-    delete_file,
-    rename_file
-)
+from hive_agent_client.files import upload_files, list_files, delete_file, rename_file
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,7 +28,7 @@ class HiveAgentClient:
         :param base_url: The base URL of the Hive Agent API.
         :param version: The version of the Hive Agent API.
         """
-        if base_url.endswith('/'):
+        if base_url.endswith("/"):
             base_url = base_url[:-1]
 
         self.base_url = f"{base_url}/{version}"
@@ -62,9 +57,13 @@ class HiveAgentClient:
         :return: A dictionary with a message about the table creation.
         """
         try:
-            return await create_table(self.http_client, self.base_url, table_name, columns)
+            return await create_table(
+                self.http_client, self.base_url, table_name, columns
+            )
         except Exception as e:
-            logger.error(f"Failed to create table {table_name} with columns {columns}: {e}")
+            logger.error(
+                f"Failed to create table {table_name} with columns {columns}: {e}"
+            )
             raise Exception(f"Failed to create table: {e}")
 
     async def insert_data(self, table_name: str, data: dict) -> Dict:
@@ -92,7 +91,9 @@ class HiveAgentClient:
         try:
             return await read_data(self.http_client, self.base_url, table_name, filters)
         except Exception as e:
-            logger.error(f"Failed to read data from table {table_name} with filters {filters}: {e}")
+            logger.error(
+                f"Failed to read data from table {table_name} with filters {filters}: {e}"
+            )
             raise Exception(f"Failed to read data: {e}")
 
     async def update_data(self, table_name: str, row_id: int, new_data: dict) -> Dict:
@@ -105,9 +106,13 @@ class HiveAgentClient:
         :return: A dictionary with a message about the update.
         """
         try:
-            return await update_data(self.http_client, self.base_url, table_name, row_id, new_data)
+            return await update_data(
+                self.http_client, self.base_url, table_name, row_id, new_data
+            )
         except Exception as e:
-            logger.error(f"Failed to update data in table {table_name} with id {row_id} and data {new_data}: {e}")
+            logger.error(
+                f"Failed to update data in table {table_name} with id {row_id} and data {new_data}: {e}"
+            )
             raise Exception(f"Failed to update data: {e}")
 
     async def delete_data(self, table_name: str, row_id: int) -> Dict:
@@ -119,9 +124,13 @@ class HiveAgentClient:
         :return: A dictionary with a message about the deletion.
         """
         try:
-            return await delete_data(self.http_client, self.base_url, table_name, row_id)
+            return await delete_data(
+                self.http_client, self.base_url, table_name, row_id
+            )
         except Exception as e:
-            logger.error(f"Failed to delete data from table {table_name} with id {row_id}: {e}")
+            logger.error(
+                f"Failed to delete data from table {table_name} with id {row_id}: {e}"
+            )
             raise Exception(f"Failed to delete data: {e}")
 
     async def upload_files(self, file_paths: List[str]) -> Dict:
@@ -171,9 +180,13 @@ class HiveAgentClient:
         :return: A dictionary with a message about the file renaming.
         """
         try:
-            return await rename_file(self.http_client, self.base_url, old_filename, new_filename)
+            return await rename_file(
+                self.http_client, self.base_url, old_filename, new_filename
+            )
         except Exception as e:
-            logger.error(f"Failed to rename file from {old_filename} to {new_filename}: {e}")
+            logger.error(
+                f"Failed to rename file from {old_filename} to {new_filename}: {e}"
+            )
             raise Exception(f"Failed to rename file: {e}")
 
     async def close(self):
