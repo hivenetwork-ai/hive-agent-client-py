@@ -30,6 +30,8 @@ def temp_files():
 
 @pytest.mark.asyncio
 async def test_chat_success():
+    user_id = "user123"
+    session_id = "session123"
     content = "Hello"
     expected_response = "Response from chat"
 
@@ -39,21 +41,56 @@ async def test_chat_success():
         )
 
         client = HiveAgentClient(base_url, version)
-        response = await client.chat(content)
+        response = await client.chat(user_id, session_id, content)
         assert response == expected_response
 
 
 @pytest.mark.asyncio
 async def test_chat_failure():
+    user_id = "user123"
+    session_id = "session123"
     content = "Hello"
 
     with respx.mock() as mock:
         mock.post(f"{base_url}/v1/chat").mock(return_value=httpx.Response(400))
 
-        client = HiveAgentClient(base_url)
+        client = HiveAgentClient(base_url, version)
         with pytest.raises(Exception) as excinfo:
-            await client.chat(content)
+            await client.chat(user_id, session_id, content)
         assert "Failed to send chat message" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_get_chat_history_success():
+    user_id = "user123"
+    session_id = "session123"
+    expected_history = [
+        {"user_id": user_id, "session_id": session_id, "message": "Hello", "role": "user", "timestamp": "2023-01-01T00:00:00Z"},
+        {"user_id": user_id, "session_id": session_id, "message": "Hi there", "role": "assistant", "timestamp": "2023-01-01T00:00:01Z"}
+    ]
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/v1/chat_history").mock(
+            return_value=httpx.Response(200, json=expected_history)
+        )
+
+        client = HiveAgentClient(base_url, version)
+        history = await client.get_chat_history(user_id, session_id)
+        assert history == expected_history
+
+
+@pytest.mark.asyncio
+async def test_get_chat_history_failure():
+    user_id = "user123"
+    session_id = "session123"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/v1/chat_history").mock(return_value=httpx.Response(400))
+
+        client = HiveAgentClient(base_url, version)
+        with pytest.raises(Exception) as excinfo:
+            await client.get_chat_history(user_id, session_id)
+        assert "HTTP error occurred when fetching chat history from the chat API: 400" in str(excinfo.value)
 
 
 @pytest.mark.asyncio
