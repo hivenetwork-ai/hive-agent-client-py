@@ -12,17 +12,22 @@ To use the `HiveAgentClient` library, you first need to ensure that you have Pyt
 1. **Install Poetry**
 
     If you don't have Poetry installed, you can install it using the following commands:
-    `$ curl -sSL https://install.python-poetry.org | python3 -`
-    `$ export PATH="$HOME/.local/bin:$PATH"`
+    ```sh
+    $ curl -sSL https://install.python-poetry.org | python3 -
+    $ export PATH="$HOME/.local/bin:$PATH"
+    ```
 
 2. **Activate the Virtual Environment**
     Activate the virtual environment created by Poetry with the following command:
-    `$ poetry shell`
+    ```sh
+    $ poetry shell
+    ```
 
 3. **Install Dependencies**
 
-    `$ poetry install --no-root`
-
+    ```sh
+    $ poetry install --no-root
+    ```
 
 ## Usage
 
@@ -36,7 +41,7 @@ client = HiveAgentClient(base_url="http://localhost:8000", timeout=30)
 
 # send a message and receive the response
 try:
-    response = client.chat("Hello, Hive Agent!")
+    response = await client.chat(user_id="user123", session_id="session123", content="Hello, Hive Agent!")
     print(response)
 except Exception as e:
     print(f"an error occurred: {e}")

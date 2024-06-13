@@ -2,7 +2,7 @@ import httpx
 import logging
 from typing import Dict, List
 
-from hive_agent_client.chat import send_chat_message
+from hive_agent_client.chat import send_chat_message, get_chat_history
 from hive_agent_client.database import (
     create_table,
     insert_data,
@@ -34,19 +34,35 @@ class HiveAgentClient:
         self.base_url = f"{base_url}/{version}"
         self.http_client = httpx.AsyncClient()
 
-    async def chat(self, content: str) -> str:
+    async def chat(self, user_id: str, session_id: str, content: str) -> str:
         """
         Send a message to the chat endpoint.
 
+        :param user_id: The user ID.
+        :param session_id: The session ID.
         :param content: The content of the message to send.
         :return: The response from the chat API as a string.
         """
         try:
             logger.debug(f"Sending message to chat endpoint: {content}")
-            return await send_chat_message(self.http_client, self.base_url, content)
+            return await send_chat_message(self.http_client, self.base_url, user_id, session_id, content)
         except Exception as e:
             logger.error(f"Failed to send chat message - {content}: {e}")
             raise Exception(f"Failed to send chat message: {e}")
+
+    async def get_chat_history(self, user_id: str, session_id: str) -> List[Dict]:
+        """
+        Retrieve the chat history for a specified user and session.
+
+        :param user_id: The user ID.
+        :param session_id: The session ID.
+        :return: The chat history as a list of dictionaries.
+        """
+        try:
+            return await get_chat_history(self.http_client, self.base_url, user_id, session_id)
+        except Exception as e:
+            logger.error(f"Failed to get chat history for user {user_id} and session {session_id}: {e}")
+            raise Exception(f"Failed to get chat history: {e}")
 
     async def create_table(self, table_name: str, columns: dict) -> Dict:
         """

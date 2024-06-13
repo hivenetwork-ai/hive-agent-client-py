@@ -29,10 +29,23 @@ client = HiveAgentClient(base_url, version)
 To send a chat message using the `chat` method:
 
 ```python
-async def send_message(content):
+async def send_message(user_id, session_id, content):
     try:
-        response = await client.chat(content)
+        response = await client.chat(user_id=user_id, session_id=session_id, content=content)
         print("Chat response:", response)
+    except Exception as e:
+        print("Error:", e)
+```
+
+## Getting Chat History
+
+To fetch the chat history, you can use the `get_chat_history` method:
+
+```python
+async def fetch_chat_history(user_id, session_id):
+    try:
+        chat_history = await client.get_chat_history(user_id=user_id, session_id=session_id)
+        print("Chat history:", chat_history)
     except Exception as e:
         print("Error:", e)
 ```
@@ -94,7 +107,6 @@ async def retrieve_filtered_data(table_name):
 
 To update existing data in a table:
 
-
 ```python
 async def update_existing_data(table_name, row_id, new_data):
     try:
@@ -107,7 +119,6 @@ async def update_existing_data(table_name, row_id, new_data):
 ## Deleting Data
 
 To delete data from a table:
-
 
 ```python
 async def delete_existing_data(table_name, row_id):
@@ -128,6 +139,7 @@ async def close_client():
 ```
 
 ## Uploading Files
+
 To upload files using the upload_files method:
 
 ```python
@@ -140,6 +152,7 @@ async def upload_files(file_paths):
 ```
 
 ## Listing Files
+
 To list all files stored on the server:
 
 ```python
@@ -152,6 +165,7 @@ async def list_all_files():
 ```
 
 ## Renaming a File
+
 To rename a specified file on the server:
 
 ```python
@@ -164,7 +178,9 @@ async def rename_file_on_server(old_filename, new_filename):
 ```
 
 ## Deleting a File
+
 To delete a specified file from the server:
+
 ```python
 async def delete_file_on_server(filename):
     try:
@@ -182,14 +198,14 @@ Here is how you might use the client in an asynchronous context:
 import asyncio
 
 async def main():
-    await send_message("Hello, world!")
+    await send_message("user123", "session123", "Hello, world!")
+    await fetch_chat_history("user123", "session123")
     
     await create_new_table("my_table", {"id": "Integer", "name": "String"})
     await insert_new_data("my_table", {"name": "Test"})
     await retrieve_data("my_table", {"id": [1]})
     await update_existing_data("my_table", 1, {"name": "Updated Test"})
     await delete_existing_data("my_table", 1)
-    await close_client()
     
     file_paths = ["path/to/your/file1.txt", "path/to/your/file2.txt"]
     await upload_files(file_paths)
@@ -203,6 +219,5 @@ asyncio.run(main())
 
 - Replace "my_table", {"id": "Integer", "name": "String"}, and other placeholders with your actual data.
 - Replace "path/to/your/file1.txt", "path/to/your/file2.txt", and other placeholders with your actual data.
-
 
 This tutorial provides a basic overview of how to interact with the Hive Agent API using the `HiveAgentClient` class.
