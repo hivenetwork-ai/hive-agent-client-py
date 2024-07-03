@@ -50,6 +50,19 @@ async def fetch_chat_history(user_id, session_id):
         print("Error:", e)
 ```
 
+## Getting All Chats
+
+To fetch all chat sessions for a user, you can use the `get_all_chats` method:
+
+```python
+async def fetch_all_chats(user_id):
+    try:
+        all_chats = await client.get_all_chats(user_id=user_id)
+        print("All chats:", all_chats)
+    except Exception as e:
+        print("Error:", e)
+```
+
 ## Creating a Table
 
 Create a new table in the database:
@@ -200,6 +213,7 @@ import asyncio
 async def main():
     await send_message("user123", "session123", "Hello, world!")
     await fetch_chat_history("user123", "session123")
+    await fetch_all_chats("user123")
     
     await create_new_table("my_table", {"id": "Integer", "name": "String"})
     await insert_new_data("my_table", {"name": "Test"})

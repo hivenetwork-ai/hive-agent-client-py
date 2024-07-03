@@ -65,8 +65,20 @@ async def test_get_chat_history_success():
     user_id = "user123"
     session_id = "session123"
     expected_history = [
-        {"user_id": user_id, "session_id": session_id, "message": "Hello", "role": "user", "timestamp": "2023-01-01T00:00:00Z"},
-        {"user_id": user_id, "session_id": session_id, "message": "Hi there", "role": "assistant", "timestamp": "2023-01-01T00:00:01Z"}
+        {
+            "user_id": user_id,
+            "session_id": session_id,
+            "message": "Hello",
+            "role": "user",
+            "timestamp": "2023-01-01T00:00:00Z",
+        },
+        {
+            "user_id": user_id,
+            "session_id": session_id,
+            "message": "Hi there",
+            "role": "assistant",
+            "timestamp": "2023-01-01T00:00:01Z",
+        },
     ]
 
     with respx.mock() as mock:
@@ -90,7 +102,70 @@ async def test_get_chat_history_failure():
         client = HiveAgentClient(base_url, version)
         with pytest.raises(Exception) as excinfo:
             await client.get_chat_history(user_id, session_id)
-        assert "HTTP error occurred when fetching chat history from the chat API: 400" in str(excinfo.value)
+        assert (
+            "HTTP error occurred when fetching chat history from the chat API: 400"
+            in str(excinfo.value)
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_all_chats_success():
+    user_id = "user123"
+
+    expected_all_chats = {
+        "session1": [
+            {
+                "message": "Hello in session1",
+                "role": "USER",
+                "timestamp": "2023-01-01T00:00:00Z",
+            },
+            {
+                "message": "Response in session1",
+                "role": "ASSISTANT",
+                "timestamp": "2023-01-01T00:00:01Z",
+            },
+        ],
+        "session2": [
+            {
+                "message": "Hello in session2",
+                "role": "USER",
+                "timestamp": "2023-01-01T00:00:02Z",
+            },
+            {
+                "message": "Response in session2",
+                "role": "ASSISTANT",
+                "timestamp": "2023-01-01T00:00:03Z",
+            },
+        ],
+    }
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/v1/all_chats").mock(
+            return_value=httpx.Response(200, json=expected_all_chats)
+        )
+
+        client = HiveAgentClient(base_url, version)
+
+        all_chats = await client.get_all_chats(user_id)
+        assert all_chats == expected_all_chats
+
+
+@pytest.mark.asyncio
+async def test_get_all_chats_failure():
+    user_id = "user123"
+
+    with respx.mock() as mock:
+        mock.get(f"{base_url}/v1/all_chats").mock(return_value=httpx.Response(400))
+
+        client = HiveAgentClient(base_url, version)
+
+        with pytest.raises(Exception) as excinfo:
+            await client.get_all_chats(user_id)
+
+        assert (
+            "HTTP error occurred when fetching all chats from the chat API: 400"
+            in str(excinfo.value)
+        )
 
 
 @pytest.mark.asyncio

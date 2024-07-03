@@ -2,7 +2,7 @@ import httpx
 import logging
 from typing import Dict, List
 
-from hive_agent_client.chat import send_chat_message, get_chat_history
+from hive_agent_client.chat import send_chat_message, get_chat_history, get_all_chats
 from hive_agent_client.database import (
     create_table,
     insert_data,
@@ -45,7 +45,9 @@ class HiveAgentClient:
         """
         try:
             logger.debug(f"Sending message to chat endpoint: {content}")
-            return await send_chat_message(self.http_client, self.base_url, user_id, session_id, content)
+            return await send_chat_message(
+                self.http_client, self.base_url, user_id, session_id, content
+            )
         except Exception as e:
             logger.error(f"Failed to send chat message - {content}: {e}")
             raise Exception(f"Failed to send chat message: {e}")
@@ -59,10 +61,28 @@ class HiveAgentClient:
         :return: The chat history as a list of dictionaries.
         """
         try:
-            return await get_chat_history(self.http_client, self.base_url, user_id, session_id)
+            return await get_chat_history(
+                self.http_client, self.base_url, user_id, session_id
+            )
         except Exception as e:
-            logger.error(f"Failed to get chat history for user {user_id} and session {session_id}: {e}")
+            logger.error(
+                f"Failed to get chat history for user {user_id} and session {session_id}: {e}"
+            )
             raise Exception(f"Failed to get chat history: {e}")
+
+    async def get_all_chats(self, user_id: str) -> Dict[str, List[Dict]]:
+        """
+        Retrieve all chat sessions for a specified user.
+
+        :param user_id: The user ID.
+        :return: All chat sessions as a dictionary with session IDs as keys and lists of messages as values.
+        """
+
+        try:
+            return await get_all_chats(self.http_client, self.base_url, user_id)
+        except Exception as e:
+            logger.error(f"Failed to get all chats for user {user_id}: {e}")
+            raise Exception(f"Failed to get all chats: {e}")
 
     async def create_table(self, table_name: str, columns: dict) -> Dict:
         """
