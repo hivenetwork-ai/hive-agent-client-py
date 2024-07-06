@@ -21,7 +21,7 @@ class HiveAgentClient:
     Client for interacting with a Hive Agent's API.
     """
 
-    def __init__(self, base_url: str, version: str = "v1"):
+    def __init__(self, base_url: str, version: str = "v1", timeout: float = 30.0):
         """
         Initializes the HiveAgentClient with the given base URL and version.
 
@@ -32,7 +32,7 @@ class HiveAgentClient:
             base_url = base_url[:-1]
 
         self.base_url = f"{base_url}/{version}"
-        self.http_client = httpx.AsyncClient()
+        self.http_client = httpx.AsyncClient(timeout=timeout)
 
     async def chat(self, user_id: str, session_id: str, content: str) -> str:
         """
