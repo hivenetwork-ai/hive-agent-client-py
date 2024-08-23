@@ -2,7 +2,12 @@ import httpx
 import logging
 from typing import Dict, List
 
-from hive_agent_client.chat import send_chat_message, get_chat_history, get_all_chats
+from hive_agent_client.chat import (
+    send_chat_message,
+    get_chat_history,
+    get_all_chats,
+    send_chat_media
+)
 from hive_agent_client.database import (
     create_table,
     insert_data,
@@ -83,6 +88,31 @@ class HiveAgentClient:
         except Exception as e:
             logger.error(f"Failed to get all chats for user {user_id}: {e}")
             raise Exception(f"Failed to get all chats: {e}")
+
+    async def chat_media(
+            self,
+            user_id: str,
+            session_id: str,
+            chat_data: str,
+            files: List[str],
+    ) -> str:
+        """
+        Send a chat message with associated media files to the chat_media endpoint.
+
+        :param user_id: The user ID.
+        :param session_id: The session ID.
+        :param chat_data: The chat data in JSON format as a string.
+        :param files: A list of file paths to be uploaded.
+        :return: The response from the chat_media API as a string.
+        """
+        try:
+            logger.debug(f"Sending chat media to chat_media endpoint with files: {files}")
+            return await send_chat_media(
+                self.http_client, self.base_url, user_id, session_id, chat_data, files
+            )
+        except Exception as e:
+            logger.error(f"Failed to send chat media - files: {files}, error: {e}")
+            raise Exception(f"Failed to send chat media: {e}")
 
     async def create_table(self, table_name: str, columns: dict) -> Dict:
         """
