@@ -171,3 +171,70 @@ async def get_all_chats(
         raise Exception(
             f"An unexpected error occurred when fetching all chats from the chat API: {e}"
         )
+
+
+async def send_chat_media(
+    http_client: httpx.AsyncClient,
+    base_url: str,
+    user_id: str,
+    session_id: str,
+    chat_data: str,
+    files: List[str],
+) -> str:
+    """
+    Sends a chat message with associated media files to the Hive Agent API and returns the response.
+
+    :param http_client: An instance of httpx.AsyncClient to make HTTP requests.
+    :param base_url: The base URL of the Hive Agent API.
+    :param user_id: The user ID.
+    :param session_id: The session ID.
+    :param chat_data: The chat data in JSON format as a string.
+    :param files: A list of file paths to be uploaded.
+    :return: The response text from the API.
+    :raises ValueError: If the chat_data or files list is empty.
+    :raises httpx.HTTPStatusError: If the request fails due to a network error or returns a 4xx/5xx response.
+    :raises Exception: For other types of errors.
+    """
+    if not chat_data.strip():
+        raise ValueError("Chat data must not be empty")
+    if not files:
+        raise ValueError("Files list must not be empty")
+
+    endpoint = "/chat_media"
+    url = f"{base_url}{endpoint}"
+
+    files_data = [('files', open(file_path, 'rb')) for file_path in files]
+    data = {
+        'user_id': user_id,
+        'session_id': session_id,
+        'chat_data': chat_data,
+    }
+
+    try:
+        logging.debug(f"Sending chat media to {url} with files: {files}")
+        response = await http_client.post(url, data=data, files=files_data)
+        response.raise_for_status()
+        logger.debug(f"Response from chat media: {response.text}")
+        return response.text
+    except httpx.HTTPStatusError as e:
+        logging.error(
+            f"HTTP error occurred when sending chat media to {url}: {e.response.status_code} - {e.response.text}"
+        )
+        raise Exception(
+            f"HTTP error occurred when sending chat media to the chat API: {e.response.status_code} - {e.response.text}"
+        )
+    except httpx.RequestError as e:
+        logging.error(f"Request error occurred when sending chat media to {url}: {e}")
+        raise Exception(
+            f"Request error occurred when sending chat media to the chat API: {e}"
+        )
+    except Exception as e:
+        logging.error(
+            f"An unexpected error occurred when sending chat media to {url}: {e}"
+        )
+        raise Exception(
+            f"An unexpected error occurred when sending chat media to the chat API: {e}"
+        )
+    finally:
+        for _, file_handle in files_data:
+            file_handle.close()

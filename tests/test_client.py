@@ -3,11 +3,24 @@ import httpx
 import json
 import pytest
 import respx
+from PIL import Image
 
 from hive_agent_client.client import HiveAgentClient
 
 base_url = "http://example.com/api"
 version = "v1"
+
+
+@pytest.fixture
+def temp_image_files():
+    file_paths = ["test1.png", "test2.png"]
+    for file_path in file_paths:
+        # Create a simple image file
+        image = Image.new('RGB', (60, 30), color=(73, 109, 137))
+        image.save(file_path)
+    yield file_paths
+    for file_path in file_paths:
+        os.remove(file_path)
 
 
 def check_response(response: int) -> int:
@@ -103,8 +116,8 @@ async def test_get_chat_history_failure():
         with pytest.raises(Exception) as excinfo:
             await client.get_chat_history(user_id, session_id)
         assert (
-            "HTTP error occurred when fetching chat history from the chat API: 400"
-            in str(excinfo.value)
+                "HTTP error occurred when fetching chat history from the chat API: 400"
+                in str(excinfo.value)
         )
 
 
@@ -163,9 +176,41 @@ async def test_get_all_chats_failure():
             await client.get_all_chats(user_id)
 
         assert (
-            "HTTP error occurred when fetching all chats from the chat API: 400"
-            in str(excinfo.value)
+                "HTTP error occurred when fetching all chats from the chat API: 400"
+                in str(excinfo.value)
         )
+
+
+@pytest.mark.asyncio
+async def test_chat_media_success(temp_image_files):
+    user_id = "user123"
+    session_id = "session123"
+    chat_data = '{"messages": [{"role": "user", "content": "Here is a file"}]}'
+    expected_response = "Media uploaded and response generated"
+
+    with respx.mock() as mock:
+        mock.post(f"{base_url}/v1/chat_media").mock(
+            return_value=httpx.Response(200, text=expected_response)
+        )
+
+        client = HiveAgentClient(base_url, version)
+        response = await client.chat_media(user_id, session_id, chat_data, temp_image_files)
+        assert response == expected_response
+
+
+@pytest.mark.asyncio
+async def test_chat_media_failure(temp_image_files):
+    user_id = "user123"
+    session_id = "session123"
+    chat_data = '{"messages": [{"role": "user", "content": "Here is a file"}]}'
+
+    with respx.mock() as mock:
+        mock.post(f"{base_url}/v1/chat_media").mock(return_value=httpx.Response(400))
+
+        client = HiveAgentClient(base_url, version)
+        with pytest.raises(Exception) as excinfo:
+            await client.chat_media(user_id, session_id, chat_data, temp_image_files)
+        assert "Failed to send chat media" in str(excinfo.value)
 
 
 @pytest.mark.asyncio
