@@ -16,6 +16,7 @@ from hive_agent_client.database import (
     delete_data,
 )
 from hive_agent_client.files import upload_files, list_files, delete_file, rename_file
+from hive_agent_client.tools import install_tools
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -254,6 +255,21 @@ class HiveAgentClient:
                 f"Failed to rename file from {old_filename} to {new_filename}: {e}"
             )
             raise Exception(f"Failed to rename file: {e}")
+
+    async def install_tools(self, tools: List[Dict[str, str | List[str]]]) -> Dict:
+        """
+        Install tools on the agent using the agent's `install_tools` API.
+
+        :param tools: A list of dictionaries where each dictionary contains:
+                      - 'url': the GitHub URL of the tool repository.
+                      - 'functions': list of paths to the functions to import.
+        :return: A dictionary with the response from the agent.
+        """
+        try:
+            return await install_tools(self.http_client, self.base_url, tools)
+        except Exception as e:
+            logger.error(f"Failed to install tools: {e}")
+            raise Exception(f"Failed to install tools: {e}")
 
     async def close(self):
         """
