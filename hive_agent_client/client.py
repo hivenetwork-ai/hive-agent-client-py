@@ -1,6 +1,7 @@
 import httpx
 import logging
-from typing import Dict, List
+
+from typing import Dict, List, Any
 
 from hive_agent_client.chat import (
     send_chat_message,
@@ -256,7 +257,7 @@ class HiveAgentClient:
             )
             raise Exception(f"Failed to rename file: {e}")
 
-    async def install_tools(self, tools: List[Dict[str, str | List[str]]]) -> Dict:
+    async def install_tools(self, tools: List[Dict[str, Any]]) -> Dict:
         """
         Install tools on the agent using the agent's `install_tools` API.
 

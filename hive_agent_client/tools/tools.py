@@ -2,7 +2,8 @@ import httpx
 import logging
 import os
 import sys
-from typing import List, Dict
+
+from typing import List, Dict, Any
 
 
 def get_log_level():
@@ -20,7 +21,7 @@ logger.setLevel(get_log_level())
 async def install_tools(
     http_client: httpx.AsyncClient,
     base_url: str,
-    tools: List[Dict[str, str | List[str]]]
+    tools: List[Dict[str, Any]]
 ) -> Dict:
     """
     Installs tools to the Hive Agent API and returns the response.
