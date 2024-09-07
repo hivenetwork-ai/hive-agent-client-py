@@ -36,10 +36,10 @@ async def install_tools(
     """
     endpoint = "/install_tools"
     url = f"{base_url}{endpoint}"
-    payload = {"tools": tools}
+    payload = tools
 
     try:
-        logging.debug(f"Installing tools to {url} with data: {tools}")
+        logging.debug(f"Installing tools to {url} with data: {payload}")
         response = await http_client.post(url, json=payload)
         response.raise_for_status()
         logger.debug(f"Response from installing tools: {response.json()}")
