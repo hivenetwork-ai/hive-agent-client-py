@@ -1,9 +1,13 @@
 import httpx
+import io
+import json
 import logging
+import mimetypes
 import os
 import sys
-from typing import List, Dict
 
+from typing import List, Dict, Union
+from fastapi import UploadFile
 
 def get_log_level():
     HIVE_AGENT_LOG_LEVEL = os.getenv("HIVE_AGENT_LOG_LEVEL", "INFO").upper()
@@ -18,11 +22,12 @@ logger.setLevel(get_log_level())
 
 
 async def send_chat_message(
-    http_client: httpx.AsyncClient,
-    base_url: str,
-    user_id: str,
-    session_id: str,
-    content: str,
+        http_client: httpx.AsyncClient,
+        base_url: str,
+        user_id: str,
+        session_id: str,
+        content: str,
+        files: List[Union[UploadFile, str]] = None  # Can be either UploadFile or file path
 ) -> str:
     """
     Sends a chat message to the Hive Agent API and returns the response.
@@ -32,6 +37,7 @@ async def send_chat_message(
     :param user_id: The user ID.
     :param session_id: The session ID.
     :param content: The content of the message to be sent.
+    :param files: List of UploadFile objects or file paths to be uploaded.
     :return: The response text from the API.
     :raises ValueError: If the content is empty.
     :raises httpx.HTTPStatusError: If the request fails due to a network error or returns a 4xx/5xx response.
@@ -42,15 +48,46 @@ async def send_chat_message(
 
     endpoint = "/chat"
     url = f"{base_url}{endpoint}"
-    payload = {
+
+    chat_data = json.dumps({
+        "messages": [
+            {
+                "role": "user",
+                "content": content
+            }
+        ]
+    })
+
+    form_data = {
         "user_id": user_id,
         "session_id": session_id,
-        "chat_data": {"messages": [{"role": "user", "content": content}]},
+        "chat_data": chat_data,  # Send as a JSON string
     }
 
+    files_to_send = []
+
+    if files:
+        for file in files:
+            if isinstance(file, UploadFile):
+                # Handle UploadFile (received from an HTTP request)
+                files_to_send.append(
+                    ("files", (file.filename, file.file, file.content_type))
+                )
+            elif isinstance(file, str):
+                # Handle file paths
+                file_name = os.path.basename(file)
+                content_type, _ = mimetypes.guess_type(file)
+                files_to_send.append(
+                    ("files", (file_name, open(file, "rb"), content_type))
+                )
+
     try:
-        logging.debug(f"Sending chat message to {url}: {content}")
-        response = await http_client.post(url, json=payload)
+        logging.debug(f"Sending chat message to {url}")
+        response = await http_client.post(
+            url,
+            data=form_data,
+            files=files_to_send  # Attach files if any
+        )
         response.raise_for_status()
         logger.debug(f"Response from chat message {content}: {response.text}")
         return response.text
@@ -73,6 +110,11 @@ async def send_chat_message(
         raise Exception(
             f"An unexpected error occurred when sending message to the chat API: {e}"
         )
+    finally:
+        # Close any files opened from file paths
+        for file in files_to_send:
+            if isinstance(file[1][1], io.IOBase):  # Check if it's a file object
+                file[1][1].close()
 
 
 async def get_chat_history(
@@ -171,70 +213,3 @@ async def get_all_chats(
         raise Exception(
             f"An unexpected error occurred when fetching all chats from the chat API: {e}"
         )
-
-
-async def send_chat_media(
-    http_client: httpx.AsyncClient,
-    base_url: str,
-    user_id: str,
-    session_id: str,
-    chat_data: str,
-    files: List[str],
-) -> str:
-    """
-    Sends a chat message with associated media files to the Hive Agent API and returns the response.
-
-    :param http_client: An instance of httpx.AsyncClient to make HTTP requests.
-    :param base_url: The base URL of the Hive Agent API.
-    :param user_id: The user ID.
-    :param session_id: The session ID.
-    :param chat_data: The chat data in JSON format as a string.
-    :param files: A list of file paths to be uploaded.
-    :return: The response text from the API.
-    :raises ValueError: If the chat_data or files list is empty.
-    :raises httpx.HTTPStatusError: If the request fails due to a network error or returns a 4xx/5xx response.
-    :raises Exception: For other types of errors.
-    """
-    if not chat_data.strip():
-        raise ValueError("Chat data must not be empty")
-    if not files:
-        raise ValueError("Files list must not be empty")
-
-    endpoint = "/chat_media"
-    url = f"{base_url}{endpoint}"
-
-    files_data = [('files', open(file_path, 'rb')) for file_path in files]
-    data = {
-        'user_id': user_id,
-        'session_id': session_id,
-        'chat_data': chat_data,
-    }
-
-    try:
-        logging.debug(f"Sending chat media to {url} with files: {files}")
-        response = await http_client.post(url, data=data, files=files_data)
-        response.raise_for_status()
-        logger.debug(f"Response from chat media: {response.text}")
-        return response.text
-    except httpx.HTTPStatusError as e:
-        logging.error(
-            f"HTTP error occurred when sending chat media to {url}: {e.response.status_code} - {e.response.text}"
-        )
-        raise Exception(
-            f"HTTP error occurred when sending chat media to the chat API: {e.response.status_code} - {e.response.text}"
-        )
-    except httpx.RequestError as e:
-        logging.error(f"Request error occurred when sending chat media to {url}: {e}")
-        raise Exception(
-            f"Request error occurred when sending chat media to the chat API: {e}"
-        )
-    except Exception as e:
-        logging.error(
-            f"An unexpected error occurred when sending chat media to {url}: {e}"
-        )
-        raise Exception(
-            f"An unexpected error occurred when sending chat media to the chat API: {e}"
-        )
-    finally:
-        for _, file_handle in files_data:
-            file_handle.close()

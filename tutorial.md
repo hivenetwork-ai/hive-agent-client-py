@@ -29,28 +29,13 @@ client = HiveAgentClient(base_url, version)
 To send a chat message using the `chat` method:
 
 ```python
-async def send_message(user_id, session_id, content):
+async def send_message(user_id, session_id, content, files):
     try:
-        response = await client.chat(user_id=user_id, session_id=session_id, content=content)
+        response = await client.chat(user_id=user_id, session_id=session_id, content=content, files=files)
         print("Chat response:", response)
     except Exception as e:
         print("Error:", e)
 ```
-
-## Sending Chat Messages with Media
-
-To send a chat message along with media files using the chat_media method:
-
-```python
-async def send_message_with_media(user_id, session_id, chat_data, files):
-    try:
-        response = await client.chat_media(user_id=user_id, session_id=session_id, chat_data=chat_data, files=files)
-        print("Chat media response:", response)
-    except Exception as e:
-        print("Error:", e)
-```
-Note: The files parameter should be a list of file paths to the media files you want to upload. The chat_data should be a JSON string that includes the message content.
-
 
 ## Getting Chat History
 
@@ -226,15 +211,17 @@ Here is how you might use the client in an asynchronous context:
 import asyncio
 
 async def main():
-    await send_message("user123", "session123", "Hello, world!")
-    await fetch_chat_history("user123", "session123")
-    await fetch_all_chats("user123")
-    await send_message_with_media(
+    await send_message(
         "user123", 
         "session123", 
-        '{"messages": [{"role": "user", "content": "Here is a file"}]}', 
-        ["path/to/file1.png", "path/to/file2.png"]
+        "Hello, world!", 
+        [
+            "path/to/file1.png",
+            UploadFile(filename="file1.png", file=open("path/to/file1.png", "rb"))
+        ]
     )
+    await fetch_chat_history("user123", "session123")
+    await fetch_all_chats("user123")
     
     await create_new_table("my_table", {"id": "Integer", "name": "String"})
     await insert_new_data("my_table", {"name": "Test"})
