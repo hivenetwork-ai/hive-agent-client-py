@@ -1,5 +1,6 @@
 import httpx
 import os
+import json
 import pytest
 
 from PIL import Image
@@ -9,8 +10,30 @@ from hive_agent_client.chat import (
     send_chat_message,
     get_chat_history,
     get_all_chats,
-    send_chat_media
 )
+
+
+@pytest.fixture
+def temp_image_files():
+    file_paths = ["test1.png", "test2.png"]
+    for file_path in file_paths:
+        # Create a simple image file
+        image = Image.new('RGB', (60, 30), color=(73, 109, 137))
+        image.save(file_path)
+    yield file_paths
+    for file_path in file_paths:
+        os.remove(file_path)
+
+
+@pytest.fixture
+def temp_files():
+    file_paths = ["test1.txt", "test2.txt"]
+    for file_path in file_paths:
+        with open(file_path, "w") as f:
+            f.write("test content")
+    yield file_paths
+    for file_path in file_paths:
+        os.remove(file_path)
 
 
 @pytest.mark.asyncio
@@ -33,12 +56,41 @@ async def test_send_chat_message_success():
     assert result == "Hello, world!"
     mock_client.post.assert_called_once_with(
         "http://example.com/api/v1/chat",
-        json={
+        data={
             "user_id": user_id,
             "session_id": session_id,
-            "chat_data": {"messages": [{"role": "user", "content": content}]},
+            "chat_data": json.dumps({
+                "messages": [{"role": "user", "content": content}]
+            }),
         },
+        files=[]
     )
+
+
+@pytest.mark.asyncio
+async def test_send_chat_message_with_files(temp_image_files):
+    mock_client = AsyncMock(spec=httpx.AsyncClient)
+    mock_response = AsyncMock(spec=httpx.Response)
+    mock_response.status_code = 200
+    mock_response.text = "Files uploaded!"
+    mock_client.post.return_value = mock_response
+
+    base_url = "http://example.com/api/v1"
+    user_id = "user123"
+    session_id = "session123"
+    content = "Check out these images"
+
+    # Test with local file paths
+    result = await send_chat_message(
+        mock_client, base_url, user_id, session_id, content, files=temp_image_files
+    )
+
+    assert result == "Files uploaded!"
+    mock_client.post.assert_called_once()
+
+    # Ensure the files are being uploaded correctly
+    assert mock_client.post.call_args[1]['files'][0][0] == 'files'
+    assert mock_client.post.call_args[1]['files'][1][0] == 'files'
 
 
 @pytest.mark.asyncio
@@ -70,8 +122,8 @@ async def test_send_chat_message_http_error():
     content = "Hello, how are you?"
 
     with pytest.raises(
-        Exception,
-        match="HTTP error occurred when sending message to the chat API: 400 - Bad request",
+            Exception,
+            match="HTTP error occurred when sending message to the chat API: 400 - Bad request",
     ):
         await send_chat_message(mock_client, base_url, user_id, session_id, content)
 
@@ -129,8 +181,8 @@ async def test_get_chat_history_failure():
     session_id = "session123"
 
     with pytest.raises(
-        Exception,
-        match="HTTP error occurred when fetching chat history from the chat API: 400 - Bad request",
+            Exception,
+            match="HTTP error occurred when fetching chat history from the chat API: 400 - Bad request",
     ):
         await get_chat_history(mock_client, base_url, user_id, session_id)
 
@@ -198,113 +250,19 @@ async def test_get_all_chats_failure():
     user_id = "user123"
 
     with pytest.raises(
-        Exception,
-        match="HTTP error occurred when fetching all chats from the chat API: 400 - Bad request",
+            Exception,
+            match="HTTP error occurred when fetching all chats from the chat API: 400 - Bad request",
     ):
         await get_all_chats(mock_client, base_url, user_id)
+
 
 @pytest.fixture
 def temp_image_files():
     file_paths = ["test1.png", "test2.png"]
     for file_path in file_paths:
         # Create a simple image file
-        image = Image.new('RGB', (60, 30), color = (73, 109, 137))
+        image = Image.new('RGB', (60, 30), color=(73, 109, 137))
         image.save(file_path)
     yield file_paths
     for file_path in file_paths:
         os.remove(file_path)
-
-
-@pytest.mark.asyncio
-async def test_send_chat_media_success(temp_image_files):
-    mock_client = AsyncMock(spec=httpx.AsyncClient)
-    mock_response = AsyncMock(spec=httpx.Response)
-    mock_response.status_code = 200
-    mock_response.text = "Media uploaded and response generated"
-    mock_client.post.return_value = mock_response
-
-    base_url = "http://example.com/api/v1"
-    user_id = "user123"
-    session_id = "session123"
-    chat_data = '{"messages": [{"role": "user", "content": "Here is a file"}]}'
-
-    result = await send_chat_media(
-        mock_client, base_url, user_id, session_id, chat_data, temp_image_files
-    )
-
-    assert result == "Media uploaded and response generated"
-    mock_client.post.assert_called_once()
-    assert mock_client.post.call_args[1]["data"] == {
-        "user_id": user_id,
-        "session_id": session_id,
-        "chat_data": chat_data,
-    }
-    # Verifying that the files were sent correctly in the POST request
-    assert len(mock_client.post.call_args[1]["files"]) == len(temp_image_files)
-
-
-@pytest.mark.asyncio
-async def test_send_chat_media_empty_chat_data(temp_image_files):
-    mock_client = AsyncMock(spec=httpx.AsyncClient)
-    base_url = "http://example.com/api/v1"
-    user_id = "user123"
-    session_id = "session123"
-    chat_data = ""
-
-    with pytest.raises(ValueError, match="Chat data must not be empty"):
-        await send_chat_media(mock_client, base_url, user_id, session_id, chat_data, temp_image_files)
-
-
-@pytest.mark.asyncio
-async def test_send_chat_media_empty_files():
-    mock_client = AsyncMock(spec=httpx.AsyncClient)
-    base_url = "http://example.com/api/v1"
-    user_id = "user123"
-    session_id = "session123"
-    chat_data = '{"messages": [{"role": "user", "content": "Here is a file"}]}'
-    files = []
-
-    with pytest.raises(ValueError, match="Files list must not be empty"):
-        await send_chat_media(mock_client, base_url, user_id, session_id, chat_data, files)
-
-
-@pytest.mark.asyncio
-async def test_send_chat_media_http_error(temp_image_files):
-    mock_client = AsyncMock(spec=httpx.AsyncClient)
-    mock_response = AsyncMock(spec=httpx.Response)
-    mock_response.status_code = 400
-    mock_response.text = "Bad request"
-    mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
-        message="Bad request", request=mock_response.request, response=mock_response
-    )
-    mock_client.post.return_value = mock_response
-
-    base_url = "http://example.com/api/v1"
-    user_id = "user123"
-    session_id = "session123"
-    chat_data = '{"messages": [{"role": "user", "content": "Here is a file"}]}'
-
-    with pytest.raises(
-        Exception,
-        match="HTTP error occurred when sending chat media to the chat API: 400 - Bad request",
-    ):
-        await send_chat_media(mock_client, base_url, user_id, session_id, chat_data, temp_image_files)
-
-
-@pytest.mark.asyncio
-async def test_send_chat_media_request_error(temp_image_files):
-    mock_client = AsyncMock(spec=httpx.AsyncClient)
-    base_url = "http://example.com/api/v1"
-    user_id = "user123"
-    session_id = "session123"
-    chat_data = '{"messages": [{"role": "user", "content": "Here is a file"}]}'
-
-    mock_client.post.side_effect = httpx.RequestError(
-        "Request error occurred"
-    )
-
-    with pytest.raises(
-        Exception,
-        match="Request error occurred when sending chat media to the chat API: Request error occurred",
-    ):
-        await send_chat_media(mock_client, base_url, user_id, session_id, chat_data, temp_image_files)
