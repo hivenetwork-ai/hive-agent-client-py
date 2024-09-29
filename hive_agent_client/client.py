@@ -19,6 +19,7 @@ from hive_agent_client.database import (
 )
 from hive_agent_client.files import upload_files, list_files, delete_file, rename_file
 from hive_agent_client.tools import install_tools
+from hive_agent_client.prompts import sample_prompts
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -254,6 +255,18 @@ class HiveAgentClient:
         except Exception as e:
             logger.error(f"Failed to install tools: {e}")
             raise Exception(f"Failed to install tools: {e}")
+
+    async def sample_prompts(self) -> Dict:
+        """
+        List all sample prompts configured for the agent.
+
+        :return: A dictionary with a list of the suggested prompts.
+        """
+        try:
+            return await sample_prompts(self.http_client, self.base_url)
+        except Exception as e:
+            logger.error(f"Failed to list the suggested prompts: {e}")
+            raise Exception(f"Failed to list the suggested prompts: {e}")
 
     async def close(self):
         """
